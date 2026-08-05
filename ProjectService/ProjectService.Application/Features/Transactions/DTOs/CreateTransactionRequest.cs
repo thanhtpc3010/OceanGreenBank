@@ -1,4 +1,4 @@
-using ProjectService.Domain.Enums;
+using ProjectService.Domain.Enum;
 
 namespace ProjectService.Application.Features.Transactions.DTOs;
 
@@ -6,7 +6,11 @@ namespace ProjectService.Application.Features.Transactions.DTOs;
 /// DTO dùng để tạo giao dịch mới.
 /// </summary>
 public sealed record CreateTransactionRequest(
-    Guid AccountId,
+    string FromAccountId,
     TransactionType Type,
     decimal Amount,
-    string Description = "");
+    string? Description = null,
+    string? ToAccountId = null,
+    string? ReceiverAccount = null,
+    string? ReceiverName = null,
+    string? ReceiverBankCode = null);

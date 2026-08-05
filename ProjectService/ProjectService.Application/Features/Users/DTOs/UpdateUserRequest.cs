@@ -5,5 +5,6 @@ namespace ProjectService.Application.Features.Users.DTOs;
 /// </summary>
 public sealed record UpdateUserRequest(
     string? FullName,
-    string? PhoneNumber,
+    string? Phone,
+    string? Address,
     bool? IsActive);

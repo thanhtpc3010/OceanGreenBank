@@ -4,9 +4,12 @@ namespace ProjectService.Application.Features.Users.DTOs;
 /// DTO trả về thông tin người dùng.
 /// </summary>
 public sealed record UserDto(
-    Guid Id,
+    string Id,
     string FullName,
     string Email,
-    string PhoneNumber,
+    string Phone,
+    string IdentityCard,
+    DateTime DateOfBirth,
+    string? Address,
     bool IsActive,
-    DateTime CreatedAtUtc);
+    DateTime CreatedDate);

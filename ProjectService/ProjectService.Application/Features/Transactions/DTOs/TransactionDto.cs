@@ -1,4 +1,4 @@
-using ProjectService.Domain.Enums;
+using ProjectService.Domain.Enum;
 
 namespace ProjectService.Application.Features.Transactions.DTOs;
 
@@ -6,11 +6,16 @@ namespace ProjectService.Application.Features.Transactions.DTOs;
 /// DTO trả về thông tin giao dịch.
 /// </summary>
 public sealed record TransactionDto(
-    Guid Id,
-    Guid AccountId,
-    TransactionType Type,
-    TransactionStatus Status,
+    string Id,
+    string TransactionCode,
+    string FromAccountId,
+    string? ToAccountId,
+    string? ReceiverAccount,
+    string? ReceiverName,
+    string? ReceiverBankCode,
     decimal Amount,
-    decimal BalanceAfter,
-    string Description,
-    DateTime CreatedAtUtc);
+    decimal Fee,
+    string? Description,
+    TransactionStatus Status,
+    TransactionType Type,
+    DateTime CreatedDate);

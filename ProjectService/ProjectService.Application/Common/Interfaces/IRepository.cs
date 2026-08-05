@@ -8,7 +8,7 @@ namespace ProjectService.Application.Common.Interfaces;
 /// </summary>
 public interface IRepository<T> where T : BaseEntity
 {
-    Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<T>> ListAsync(CancellationToken cancellationToken = default);
 

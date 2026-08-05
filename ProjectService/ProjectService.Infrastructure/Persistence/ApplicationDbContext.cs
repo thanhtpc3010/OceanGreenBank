@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using ProjectService.Domain.Entities;
+using ProjectService.Domain.Entity;
 
 namespace ProjectService.Infrastructure.Persistence;
 
@@ -10,15 +10,17 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<User> Users => Set<User>();
 
+    public DbSet<Role> Roles => Set<Role>();
+
+    public DbSet<Permission> Permissions => Set<Permission>();
+
+    public DbSet<Bank> Banks => Set<Bank>();
+
+    public DbSet<Site> Sites => Set<Site>();
+
     public DbSet<Account> Accounts => Set<Account>();
 
     public DbSet<Transaction> Transactions => Set<Transaction>();
-
-    public DbSet<SavingsAccount> SavingsAccounts => Set<SavingsAccount>();
-
-    public DbSet<AutoEarningSub> AutoEarningSubs => Set<AutoEarningSub>();
-
-    public DbSet<DailyInterestLog> DailyInterestLogs => Set<DailyInterestLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

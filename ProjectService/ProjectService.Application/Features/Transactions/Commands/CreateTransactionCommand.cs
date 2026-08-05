@@ -1,16 +1,22 @@
 using MediatR;
+using ProjectService.Application.Common.Base;
 using ProjectService.Application.Common.Interfaces;
 using ProjectService.Application.Features.Transactions.DTOs;
-using ProjectService.Domain.Entities;
-using ProjectService.Domain.Enums;
+using ProjectService.Domain.Entity;
+using ProjectService.Domain.Enum;
+using ProjectService.Domain.Exceptions;
 
 namespace ProjectService.Application.Features.Transactions.Commands;
 
 public sealed record CreateTransactionCommand(
-    Guid AccountId,
+    string FromAccountId,
     TransactionType Type,
     decimal Amount,
-    string Description) : IRequest<TransactionDto>;
+    string? Description,
+    string? ToAccountId,
+    string? ReceiverAccount,
+    string? ReceiverName,
+    string? ReceiverBankCode) : BaseCommand<TransactionDto>;
 
 public sealed class CreateTransactionCommandHandler : IRequestHandler<CreateTransactionCommand, TransactionDto>
 {
@@ -30,45 +36,79 @@ public sealed class CreateTransactionCommandHandler : IRequestHandler<CreateTran
 
     public async Task<TransactionDto> Handle(CreateTransactionCommand request, CancellationToken cancellationToken)
     {
-        var account = await _accountRepository.GetByIdAsync(request.AccountId, cancellationToken)
-            ?? throw new Domain.Exceptions.DomainException("Tài khoản không tồn tại.");
+        var fromAccount = await _accountRepository.GetByIdAsync(request.FromAccountId, cancellationToken)
+            ?? throw new DomainException("Tài khoản gửi không tồn tại.");
+
+        if (!fromAccount.IsActive)
+            throw new DomainException("Tài khoản gửi đã bị khóa.");
 
         if (request.Amount <= 0)
-            throw new Domain.Exceptions.DomainException("Số tiền giao dịch phải lớn hơn 0.");
+            throw new DomainException("Số tiền giao dịch phải lớn hơn 0.");
 
-        if (request.Type == TransactionType.Withdrawal && account.Balance < request.Amount)
-            throw new Domain.Exceptions.DomainException("Số dư không đủ để thực hiện giao dịch.");
+        var fee = request.Type == TransactionType.InterbankTransfer ? 5000m : 0m;
+        var totalDebit = request.Amount + fee;
 
-        var balanceAfter = request.Type switch
+        if (fromAccount.Balance < totalDebit)
+            throw new DomainException("Số dư không đủ để thực hiện giao dịch.");
+
+        Account? toAccount = null;
+        if (!string.IsNullOrEmpty(request.ToAccountId))
         {
-            TransactionType.Deposit => account.Balance + request.Amount,
-            _ => account.Balance - request.Amount
-        };
+            toAccount = await _accountRepository.GetByIdAsync(request.ToAccountId!, cancellationToken);
+            if (toAccount is null)
+                throw new DomainException("Tài khoản nhận không tồn tại.");
+            if (!toAccount.IsActive)
+                throw new DomainException("Tài khoản nhận đã bị khóa.");
+        }
+
+        // Ghi Nợ tài khoản gửi.
+        fromAccount.Balance -= totalDebit;
+        _accountRepository.Update(fromAccount);
+
+        // Ghi Có tài khoản nhận (nếu chuyển nội bộ).
+        if (toAccount is not null)
+        {
+            toAccount.Balance += request.Amount;
+            _accountRepository.Update(toAccount);
+        }
 
         var transaction = new Transaction
         {
-            AccountId = request.AccountId,
-            Type = request.Type,
-            Status = TransactionStatus.Completed,
+            Id = Guid.NewGuid().ToString("N"),
+            CreatedDate = DateTime.UtcNow,
+            CreatedBy = null,
+            TransactionCode = GenerateTransactionCode(),
+            FromAccountId = request.FromAccountId,
+            ToAccountId = request.ToAccountId,
+            ReceiverAccount = request.ReceiverAccount,
+            ReceiverName = request.ReceiverName,
+            ReceiverBankCode = request.ReceiverBankCode,
             Amount = request.Amount,
-            BalanceAfter = balanceAfter,
-            Description = request.Description
+            Fee = fee,
+            Description = request.Description,
+            Status = TransactionStatus.Success,
+            Type = request.Type
         };
 
-        account.Balance = balanceAfter;
-
-        _accountRepository.Update(account);
         await _transactionRepository.AddAsync(transaction, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new TransactionDto(
             transaction.Id,
-            transaction.AccountId,
-            transaction.Type,
-            transaction.Status,
+            transaction.TransactionCode,
+            transaction.FromAccountId,
+            transaction.ToAccountId,
+            transaction.ReceiverAccount,
+            transaction.ReceiverName,
+            transaction.ReceiverBankCode,
             transaction.Amount,
-            transaction.BalanceAfter,
+            transaction.Fee,
             transaction.Description,
-            transaction.CreatedAtUtc);
+            transaction.Status,
+            transaction.Type,
+            transaction.CreatedDate);
     }
+
+    private static string GenerateTransactionCode()
+        => $"TXN{DateTime.Now:yyyyMMddHHmmss}{Random.Shared.Next(100, 999)}";
 }

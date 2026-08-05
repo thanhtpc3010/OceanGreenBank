@@ -1,11 +1,13 @@
 using MediatR;
+using ProjectService.Application.Common.Base;
 using ProjectService.Application.Common.Interfaces;
 using ProjectService.Application.Features.Transactions.DTOs;
-using ProjectService.Domain.Entities;
+using ProjectService.Domain.Entity;
 
 namespace ProjectService.Application.Features.Transactions.Queries;
 
-public sealed record GetAccountTransactionsQuery(Guid AccountId) : IRequest<IReadOnlyList<TransactionDto>>;
+public sealed record GetAccountTransactionsQuery(string AccountId)
+    : BaseQuery<IReadOnlyList<TransactionDto>>;
 
 public sealed class GetAccountTransactionsQueryHandler
     : IRequestHandler<GetAccountTransactionsQuery, IReadOnlyList<TransactionDto>>
@@ -22,20 +24,25 @@ public sealed class GetAccountTransactionsQueryHandler
         CancellationToken cancellationToken)
     {
         var transactions = await _transactionRepository.FindAsync(
-            t => t.AccountId == request.AccountId,
+            t => t.FromAccountId == request.AccountId || t.ToAccountId == request.AccountId,
             cancellationToken);
 
         return transactions
-            .OrderByDescending(t => t.CreatedAtUtc)
+            .OrderByDescending(t => t.CreatedDate)
             .Select(t => new TransactionDto(
                 t.Id,
-                t.AccountId,
-                t.Type,
-                t.Status,
+                t.TransactionCode,
+                t.FromAccountId,
+                t.ToAccountId,
+                t.ReceiverAccount,
+                t.ReceiverName,
+                t.ReceiverBankCode,
                 t.Amount,
-                t.BalanceAfter,
+                t.Fee,
                 t.Description,
-                t.CreatedAtUtc))
+                t.Status,
+                t.Type,
+                t.CreatedDate))
             .ToList();
     }
 }

@@ -1,12 +1,13 @@
 using MediatR;
+using ProjectService.Application.Common.Base;
 using ProjectService.Application.Common.Exceptions;
 using ProjectService.Application.Common.Interfaces;
 using ProjectService.Application.Features.Accounts.DTOs;
-using ProjectService.Domain.Entities;
+using ProjectService.Domain.Entity;
 
 namespace ProjectService.Application.Features.Accounts.Queries;
 
-public sealed record GetAccountQuery(Guid AccountId) : IRequest<AccountDto>;
+public sealed record GetAccountQuery(string AccountId) : BaseQuery<AccountDto>;
 
 public sealed class GetAccountQueryHandler : IRequestHandler<GetAccountQuery, AccountDto>
 {
@@ -26,10 +27,9 @@ public sealed class GetAccountQueryHandler : IRequestHandler<GetAccountQuery, Ac
             account.Id,
             account.UserId,
             account.AccountNumber,
-            account.Type,
             account.Balance,
             account.Currency,
             account.IsActive,
-            account.CreatedAtUtc);
+            account.CreatedDate);
     }
 }

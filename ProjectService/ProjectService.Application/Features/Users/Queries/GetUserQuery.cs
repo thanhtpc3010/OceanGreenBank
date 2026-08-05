@@ -1,12 +1,13 @@
 using MediatR;
+using ProjectService.Application.Common.Base;
 using ProjectService.Application.Common.Exceptions;
 using ProjectService.Application.Common.Interfaces;
 using ProjectService.Application.Features.Users.DTOs;
-using ProjectService.Domain.Entities;
+using ProjectService.Domain.Entity;
 
 namespace ProjectService.Application.Features.Users.Queries;
 
-public sealed record GetUserQuery(Guid UserId) : IRequest<UserDto>;
+public sealed record GetUserQuery(string UserId) : BaseQuery<UserDto>;
 
 public sealed class GetUserQueryHandler : IRequestHandler<GetUserQuery, UserDto>
 {
@@ -26,8 +27,11 @@ public sealed class GetUserQueryHandler : IRequestHandler<GetUserQuery, UserDto>
             user.Id,
             user.FullName,
             user.Email,
-            user.PhoneNumber,
+            user.Phone,
+            user.IdentityCard,
+            user.DateOfBirth,
+            user.Address,
             user.IsActive,
-            user.CreatedAtUtc);
+            user.CreatedDate);
     }
 }

@@ -17,13 +17,20 @@ public class UsersController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<UserDto>> GetById(Guid id, CancellationToken ct)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<UserDto>> GetById(string id, CancellationToken ct)
         => Ok(await _mediator.Send(new GetUserQuery(id), ct));
 
     [HttpPost]
     public async Task<ActionResult<UserDto>> Create([FromBody] CreateUserRequest request, CancellationToken ct)
         => Ok(await _mediator.Send(
-            new CreateUserCommand(request.FullName, request.Email, request.PhoneNumber, request.Password),
+            new CreateUserCommand(
+                request.FullName,
+                request.Email,
+                request.Phone,
+                request.IdentityCard,
+                request.DateOfBirth,
+                request.Password,
+                request.Address),
             ct));
 }

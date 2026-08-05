@@ -1,15 +1,19 @@
 using MediatR;
+using ProjectService.Application.Common.Base;
 using ProjectService.Application.Common.Interfaces;
 using ProjectService.Application.Features.Users.DTOs;
-using ProjectService.Domain.Entities;
+using ProjectService.Domain.Entity;
 
 namespace ProjectService.Application.Features.Users.Commands;
 
 public sealed record CreateUserCommand(
     string FullName,
     string Email,
-    string PhoneNumber,
-    string Password) : IRequest<UserDto>;
+    string Phone,
+    string IdentityCard,
+    DateTime DateOfBirth,
+    string Password,
+    string? Address) : BaseCommand<UserDto>;
 
 public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserDto>
 {
@@ -27,10 +31,16 @@ public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand
         // TODO: hash password bằng BCrypt / ASP.NET Core Identity trước khi lưu.
         var user = new User
         {
+            Id = Guid.NewGuid().ToString("N"),
+            CreatedDate = DateTime.UtcNow,
+            CreatedBy = null,
             FullName = request.FullName,
             Email = request.Email,
-            PhoneNumber = request.PhoneNumber,
-            PasswordHash = request.Password
+            Phone = request.Phone,
+            IdentityCard = request.IdentityCard,
+            DateOfBirth = request.DateOfBirth,
+            PasswordHash = request.Password,
+            Address = request.Address
         };
 
         await _userRepository.AddAsync(user, cancellationToken);
@@ -40,8 +50,11 @@ public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand
             user.Id,
             user.FullName,
             user.Email,
-            user.PhoneNumber,
+            user.Phone,
+            user.IdentityCard,
+            user.DateOfBirth,
+            user.Address,
             user.IsActive,
-            user.CreatedAtUtc);
+            user.CreatedDate);
     }
 }

@@ -6,5 +6,8 @@ namespace ProjectService.Application.Features.Users.DTOs;
 public sealed record CreateUserRequest(
     string FullName,
     string Email,
-    string PhoneNumber,
-    string Password);
+    string Phone,
+    string IdentityCard,
+    DateTime DateOfBirth,
+    string Password,
+    string? Address);

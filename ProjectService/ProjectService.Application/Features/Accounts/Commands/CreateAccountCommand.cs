@@ -1,16 +1,14 @@
 using MediatR;
+using ProjectService.Application.Common.Base;
 using ProjectService.Application.Common.Interfaces;
 using ProjectService.Application.Features.Accounts.DTOs;
-using ProjectService.Domain.Entities;
-using ProjectService.Domain.Enums;
+using ProjectService.Domain.Entity;
 using ProjectService.Domain.Events;
+using ProjectService.Domain.Exceptions;
 
 namespace ProjectService.Application.Features.Accounts.Commands;
 
-public sealed record CreateAccountCommand(
-    Guid UserId,
-    AccountType Type,
-    string Currency) : IRequest<AccountDto>;
+public sealed record CreateAccountCommand(string UserId, string Currency) : BaseCommand<AccountDto>;
 
 public sealed class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand, AccountDto>
 {
@@ -35,13 +33,15 @@ public sealed class CreateAccountCommandHandler : IRequestHandler<CreateAccountC
     {
         var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
         if (user is null)
-            throw new Domain.Exceptions.DomainException("Người dùng không tồn tại.");
+            throw new DomainException("Người dùng không tồn tại.");
 
         var account = new Account
         {
+            Id = Guid.NewGuid().ToString("N"),
+            CreatedDate = DateTime.UtcNow,
+            CreatedBy = null,
             UserId = request.UserId,
             AccountNumber = GenerateAccountNumber(),
-            Type = request.Type,
             Currency = request.Currency,
             Balance = 0m
         };
@@ -56,11 +56,10 @@ public sealed class CreateAccountCommandHandler : IRequestHandler<CreateAccountC
             account.Id,
             account.UserId,
             account.AccountNumber,
-            account.Type,
             account.Balance,
             account.Currency,
             account.IsActive,
-            account.CreatedAtUtc);
+            account.CreatedDate);
     }
 
     private static string GenerateAccountNumber()

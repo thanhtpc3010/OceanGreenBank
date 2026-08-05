@@ -19,7 +19,7 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
         DbSet = dbContext.Set<T>();
     }
 
-    public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
         => await DbSet.FindAsync([id], cancellationToken);
 
     public async Task<IReadOnlyList<T>> ListAsync(CancellationToken cancellationToken = default)
