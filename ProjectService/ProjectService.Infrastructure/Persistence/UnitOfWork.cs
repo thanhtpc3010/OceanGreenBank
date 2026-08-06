@@ -1,12 +1,13 @@
 using ProjectService.Application.Common.Interfaces;
+using ProjectService.Infrastructure.Persistence.Contexts;
 
 namespace ProjectService.Infrastructure.Persistence;
 
 public class UnitOfWork : IUnitOfWork
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly ApplicationWriteDbContext _dbContext;
 
-    public UnitOfWork(ApplicationDbContext dbContext)
+    public UnitOfWork(ApplicationWriteDbContext dbContext)
     {
         _dbContext = dbContext;
     }

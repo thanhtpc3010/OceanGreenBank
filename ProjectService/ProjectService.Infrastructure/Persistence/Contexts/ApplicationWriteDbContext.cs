@@ -1,0 +1,30 @@
+using Microsoft.EntityFrameworkCore;
+using ProjectService.Domain.Entity;
+
+namespace ProjectService.Infrastructure.Persistence.Contexts;
+
+/// <summary>
+/// Write DbContext — dùng cho Command (POST/PUT/PATCH/DELETE), tracking entity để ghi DB.
+/// </summary>
+public class ApplicationWriteDbContext(DbContextOptions<ApplicationWriteDbContext> options) : DbContext(options)
+{
+    public DbSet<User> Users { get; set; }
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<Permission> Permissions { get; set; }
+    public DbSet<Bank> Banks { get; set; }
+    public DbSet<Site> Sites { get; set; }
+    public DbSet<Account> Accounts { get; set; }
+    public DbSet<Transaction> Transactions { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationWriteDbContext).Assembly);
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+    }
+}

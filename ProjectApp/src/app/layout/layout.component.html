@@ -1,0 +1,19 @@
+<div class="flex h-screen flex-col overflow-hidden bg-slate-50">
+  <!-- HEADER -->
+  <app-header (menuToggle)="toggleSidebar()" />
+
+  <!-- SYSTEM BANNER -->
+  <app-system-banner />
+
+  <!-- BODY: SIDEBAR + MAIN -->
+  <div class="flex min-h-0 flex-1">
+    <app-sidebar [open]="sidebarOpen()" (close)="sidebarOpen.set(false)" />
+
+    <main class="min-w-0 flex-1 overflow-y-auto">
+      <router-outlet />
+    </main>
+  </div>
+
+  <!-- FLOATING AI CHAT -->
+  <app-floating-ai />
+</div>

@@ -1,0 +1,213 @@
+<div class="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+  <div class="w-full max-w-md space-y-6">
+    <!-- Logo -->
+    <div class="text-center">
+      <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600 to-ocean-600 shadow-lg shadow-brand-600/20">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2 2 19h20L12 2Zm0 5 5 10h-3l-2-4-2 4H7l5-10Z" />
+        </svg>
+      </span>
+      <h1 class="mt-4 text-2xl font-extrabold text-slate-800">
+        Smart<span class="text-brand-600">Bank</span>
+      </h1>
+      <p class="mt-1 text-sm text-slate-500">Ngân hàng số thông minh</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="relative mx-auto flex w-fit rounded-2xl bg-slate-100 p-1">
+      <!-- active indicator (trượt giữa 2 tab) -->
+      <div
+        class="absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-xl bg-gradient-to-r from-brand-600 to-ocean-600 shadow transition-transform duration-400"
+        [class.translate-x-full]="activeTab() === 'register'"
+      ></div>
+      <button
+        type="button"
+        class="relative z-10 w-[130px] rounded-xl py-2.5 text-sm font-semibold transition-colors duration-300"
+        [class.text-white]="activeTab() === 'login'"
+        [class.text-slate-500]="activeTab() !== 'login'"
+        (click)="setTab('login')"
+      >
+        Đăng nhập
+      </button>
+      <button
+        type="button"
+        class="relative z-10 w-[130px] rounded-xl py-2.5 text-sm font-semibold transition-colors duration-300"
+        [class.text-white]="activeTab() === 'register'"
+        [class.text-slate-500]="activeTab() !== 'register'"
+        (click)="setTab('register')"
+      >
+        Đăng ký
+      </button>
+    </div>
+
+    <!-- Error -->
+    @if (error()) {
+      <div class="flex items-center gap-2 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+        </svg>
+        {{ error() }}
+      </div>
+    }
+
+    <!-- Form container với animation transform -->
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div
+        class="flex w-[200%] transition-transform duration-500 ease-in-out"
+        [class.-translate-x-1/2]="activeTab() === 'register'"
+      >
+        <!-- ===================== FORM ĐĂNG NHẬP ===================== -->
+        <div class="w-1/2 p-8">
+          <div class="space-y-4">
+            <div>
+              <label class="mb-1.5 block text-sm font-semibold text-slate-700">Email / SĐT</label>
+              <div class="relative">
+                <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                </svg>
+                <input
+                  type="text"
+                  [(ngModel)]="loginEmail"
+                  (keyup.enter)="submit()"
+                  placeholder="nguyenvana@gmail.com"
+                  class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-sm font-semibold text-slate-700">Mật khẩu</label>
+              <div class="relative">
+                <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                </svg>
+                <input
+                  type="password"
+                  [(ngModel)]="loginPassword"
+                  (keyup.enter)="submit()"
+                  placeholder="••••••••"
+                  class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+                />
+              </div>
+            </div>
+
+            <a href="#" class="block text-sm font-medium text-brand-600 hover:text-brand-700">Quên mật khẩu?</a>
+          </div>
+        </div>
+
+        <!-- ===================== FORM ĐĂNG KÝ ===================== -->
+        <div class="w-1/2 p-8">
+          <div class="space-y-4">
+            <div>
+              <label class="mb-1.5 block text-sm font-semibold text-slate-700">Họ và tên</label>
+              <input
+                type="text"
+                [(ngModel)]="regFullName"
+                (keyup.enter)="submit()"
+                placeholder="Nguyễn Văn A"
+                class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+              />
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-sm font-semibold text-slate-700">Email</label>
+              <input
+                type="email"
+                [(ngModel)]="regEmail"
+                (keyup.enter)="submit()"
+                placeholder="nguyenvana@gmail.com"
+                class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+              />
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-sm font-semibold text-slate-700">Số điện thoại</label>
+              <input
+                type="text"
+                [(ngModel)]="regPhone"
+                (keyup.enter)="submit()"
+                placeholder="0912 345 678"
+                class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+              />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="mb-1.5 block text-sm font-semibold text-slate-700">Mật khẩu</label>
+                <input
+                  type="password"
+                  [(ngModel)]="regPassword"
+                  (keyup.enter)="submit()"
+                  placeholder="••••••••"
+                  class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+                />
+              </div>
+              <div>
+                <label class="mb-1.5 block text-sm font-semibold text-slate-700">Xác nhận</label>
+                <input
+                  type="password"
+                  [(ngModel)]="regConfirmPassword"
+                  (keyup.enter)="submit()"
+                  placeholder="••••••••"
+                  class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+                />
+              </div>
+            </div>
+
+            <!-- reCAPTCHA -->
+            <div
+              class="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 transition hover:border-brand-300"
+              (click)="recaptcha.set(!recaptcha())"
+            >
+              <div
+                class="flex h-6 w-6 shrink-0 items-center justify-center rounded border-2 transition"
+                [class.border-brand-500]="recaptcha()"
+                [class.bg-brand-500]="recaptcha()"
+                [class.border-slate-300]="!recaptcha()"
+                [class.bg-slate-50]="!recaptcha()"
+              >
+                @if (recaptcha()) {
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                  </svg>
+                }
+              </div>
+              <span class="text-sm text-slate-600">Tôi không phải người máy</span>
+              <div class="ml-auto flex flex-col items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24">
+                  <path fill="#1c64f2" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2Zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8Z"/>
+                  <path fill="#1c64f2" d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z" opacity=".2"/>
+                  <path fill="#fff" d="M12 6c-1.1 0-2 .9-2 2 0 .74.4 1.38 1 1.72v6.56c0 .4.45.72 1 .72s1-.32 1-.72V9.72c.6-.34 1-.98 1-1.72 0-1.1-.9-2-2-2Z"/>
+                </svg>
+                <span class="text-[10px] leading-tight text-slate-400">reCAPTCHA</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit button -->
+    <button
+      type="button"
+      (click)="submit()"
+      [disabled]="loading()"
+      class="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-ocean-600 text-sm font-bold text-white shadow-md shadow-brand-600/20 transition hover:opacity-90 disabled:cursor-wait disabled:opacity-70"
+    >
+      @if (loading()) {
+        <svg class="h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647Z"></path>
+        </svg>
+        {{ activeTab() === 'login' ? 'Đang đăng nhập...' : 'Đang đăng ký...' }}
+      } @else {
+        {{ activeTab() === 'login' ? 'Đăng nhập' : 'Đăng ký' }}
+      }
+    </button>
+
+    <!-- Footer -->
+    <p class="text-center text-xs text-slate-400">
+      © 2026 SmartBank. Bảo mật bởi OceanGreen.
+    </p>
+  </div>
+</div>

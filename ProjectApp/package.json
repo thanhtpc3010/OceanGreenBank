@@ -2,9 +2,11 @@
   "name": "project-app",
   "version": "0.0.0",
   "scripts": {
+    "tailwind": "tailwindcss -i src/tailwind.src.css -o src/tailwind.css --minify",
+    "tailwind:watch": "tailwindcss -i src/tailwind.src.css -o src/tailwind.css --watch",
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
+    "start": "npm run tailwind && ng serve",
+    "build": "npm run tailwind && ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -36,6 +38,7 @@
     "@angular/build": "^21.0.4",
     "@angular/cli": "^21.0.4",
     "@angular/compiler-cli": "^21.0.0",
+    "@tailwindcss/cli": "^4.3.3",
     "@tailwindcss/postcss": "^4.3.3",
     "jsdom": "^27.1.0",
     "tailwindcss": "^4.3.3",
