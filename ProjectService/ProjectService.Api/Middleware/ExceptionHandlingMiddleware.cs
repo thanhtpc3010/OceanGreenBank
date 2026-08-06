@@ -1,5 +1,4 @@
 using System.Text.Json;
-using ProjectService.Application.Common.Exceptions;
 using ProjectService.Domain.Exceptions;
 
 namespace ProjectService.Api.Middleware;
@@ -35,7 +34,11 @@ public class ExceptionHandlingMiddleware
         var (statusCode, message) = exception switch
         {
             NotFoundException => (StatusCodes.Status404NotFound, exception.Message),
+            DuplicateException => (StatusCodes.Status409Conflict, exception.Message),
             DomainException => (StatusCodes.Status400BadRequest, exception.Message),
+            ValidationException => (StatusCodes.Status400BadRequest, exception.Message),
+            TabValidationException => (StatusCodes.Status400BadRequest, exception.Message),
+            TransactionException => (StatusCodes.Status400BadRequest, exception.Message),
             _ => (StatusCodes.Status500InternalServerError, "Đã có lỗi xảy ra. Vui lòng thử lại sau.")
         };
 

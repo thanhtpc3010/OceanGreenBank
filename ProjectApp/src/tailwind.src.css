@@ -1,0 +1,34 @@
+/* ===== NGUỒN Tailwind (chỉ dùng để biên dịch bằng Tailwind CLI) =====
+   Lệnh: npx @tailwindcss/cli -i src/tailwind.src.css -o src/tailwind.css --minify
+   Không include file này vào angular.json — chỉ include bản đã biên dịch src/tailwind.css. */
+
+@import "tailwindcss";
+
+/* Tailwind v4 không tự phát hiện template Angular — khai báo nguồn nội dung. */
+@source "./app/**/*.html";
+@source "./app/**/*.ts";
+
+/* ===== Brand theme: xanh lá (brand) + xanh da trời (ocean) ===== */
+@theme {
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-brand-800: #065f46;
+  --color-brand-900: #064e3b;
+
+  --color-ocean-50: #f0f9ff;
+  --color-ocean-100: #e0f2fe;
+  --color-ocean-200: #bae6fd;
+  --color-ocean-300: #7dd3fc;
+  --color-ocean-400: #38bdf8;
+  --color-ocean-500: #0ea5e9;
+  --color-ocean-600: #0284c7;
+  --color-ocean-700: #0369a1;
+  --color-ocean-800: #075985;
+  --color-ocean-900: #0c4a6e;
+}

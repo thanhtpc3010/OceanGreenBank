@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using ProjectService.Application.Features.Transactions.Commands;
-using ProjectService.Application.Features.Transactions.DTOs;
+using ProjectService.Application.Services.Commands;
+using ProjectService.Application.Services.DTOs;
 
 namespace ProjectService.Api.Controllers;
 
@@ -16,6 +16,7 @@ public class TransactionsController : ControllerBase
         _mediator = mediator;
     }
 
+    // ---- Command (Write side) ----
     [HttpPost]
     public async Task<ActionResult<TransactionDto>> Create([FromBody] CreateTransactionRequest request, CancellationToken ct)
         => Ok(await _mediator.Send(
@@ -29,4 +30,11 @@ public class TransactionsController : ControllerBase
                 request.ReceiverName,
                 request.ReceiverBankCode),
             ct));
+
+    [HttpPost("{id}/cancel")]
+    public async Task<IActionResult> Cancel(string id, CancellationToken ct)
+    {
+        await _mediator.Send(new CancelTransactionCommand(id), ct);
+        return NoContent();
+    }
 }
