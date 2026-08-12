@@ -1,12 +1,12 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, EventEmitter, Output, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-header',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, RouterLink],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
 })
