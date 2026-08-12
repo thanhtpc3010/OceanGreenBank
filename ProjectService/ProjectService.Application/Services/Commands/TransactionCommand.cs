@@ -17,7 +17,8 @@ public sealed record CreateTransactionCommand(
     string? ToAccountId,
     string? ReceiverAccount,
     string? ReceiverName,
-    string? ReceiverBankCode) : BaseCommand<TransactionDto>;
+    string? ReceiverBankCode,
+    TransactionCategory Category = TransactionCategory.Other) : BaseCommand<TransactionDto>;
 
 public sealed record CancelTransactionCommand(string TransactionId) : BaseCommand<Unit>;
 
@@ -120,7 +121,8 @@ public class TransactionCommand :
             Fee = fee,
             Description = request.Description,
             Status = TransactionStatus.Success,
-            Type = request.Type
+            Type = request.Type,
+            Category = request.Category
         };
 
         await _transactionRepository.AddAsync(transaction, ct);
@@ -162,5 +164,6 @@ public class TransactionCommand :
         t.Description,
         t.Status,
         t.Type,
+        t.Category,
         t.CreatedDate);
 }

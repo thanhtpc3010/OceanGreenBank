@@ -13,4 +13,5 @@ public sealed record CreateTransactionRequest(
     string? ToAccountId = null,
     string? ReceiverAccount = null,
     string? ReceiverName = null,
-    string? ReceiverBankCode = null);
+    string? ReceiverBankCode = null,
+    TransactionCategory Category = TransactionCategory.Other);

@@ -7,6 +7,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { EditAccountComponent } from './pages/account/edit-account.component';
 import { LoginComponent } from './pages/login/login.component';
 import { PasswordAccountComponent } from './pages/account/password-account.component';
+import { TransferComponent } from './pages/transfer/transfer.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -17,6 +18,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
+      { path: 'transfer', component: TransferComponent },
       {
         path: 'account',
         children: [

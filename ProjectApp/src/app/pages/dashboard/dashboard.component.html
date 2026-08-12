@@ -110,8 +110,32 @@
         <h2 class="text-base font-bold text-slate-800">AI PFM - Thống kê thu chi tháng này</h2>
         <p class="text-xs text-slate-500">Phân tích tự động bởi AI PFM Bot</p>
       </div>
-      <span class="rounded-full bg-ocean-50 px-3 py-1 text-xs font-semibold text-ocean-700">Tháng 8/2026</span>
+      <span class="rounded-full bg-ocean-50 px-3 py-1 text-xs font-semibold text-ocean-700">BOT PFM tổng hợp</span>
     </div>
+
+    <!-- Tóm tắt Thu / Chi / Số dư -->
+    @if (!pfmLoading()) {
+      <div class="mt-5 grid gap-3 sm:grid-cols-3">
+        <div class="rounded-xl bg-gradient-to-br from-brand-50 to-ocean-50 p-4">
+          <p class="text-[11px] font-medium text-slate-500">Tổng thu</p>
+          <p class="mt-1 text-xl font-extrabold text-brand-600">{{ format(pfmIncome()) }} VND</p>
+        </div>
+        <div class="rounded-xl bg-gradient-to-br from-rose-50 to-orange-50 p-4">
+          <p class="text-[11px] font-medium text-slate-500">Tổng chi</p>
+          <p class="mt-1 text-xl font-extrabold text-rose-600">{{ format(pfmExpense()) }} VND</p>
+        </div>
+        <div class="rounded-xl bg-slate-50 p-4">
+          <p class="text-[11px] font-medium text-slate-500">Số dư (Thu − Chi)</p>
+          <p
+            class="mt-1 text-xl font-extrabold"
+            [class.text-emerald-600]="pfmNet() >= 0"
+            [class.text-rose-600]="pfmNet() < 0"
+          >
+            {{ pfmNet() >= 0 ? '+' : '' }}{{ format(pfmNet()) }} VND
+          </p>
+        </div>
+      </div>
+    }
 
     <div class="mt-6 grid gap-8 lg:grid-cols-2">
       <!-- Donut: Chi tiêu -->
@@ -121,7 +145,7 @@
           <div class="relative">
             <svg viewBox="0 0 42 42" class="h-36 w-36 -rotate-90">
               <circle cx="21" cy="21" r="15.9" fill="none" stroke-width="5" class="stroke-slate-100"></circle>
-              @for (seg of donutSegments; track seg.label; let i = $index) {
+              @for (seg of donutSegments(); track seg.label; let i = $index) {
                 <circle
                   cx="21"
                   cy="21"
@@ -137,19 +161,19 @@
             </svg>
             <div class="absolute inset-0 flex flex-col items-center justify-center">
               <p class="text-[11px] text-slate-400">Tổng chi</p>
-              <p class="text-lg font-extrabold text-slate-800">{{ format(donutTotal) }}</p>
+              <p class="text-lg font-extrabold text-slate-800">{{ format(donutTotal()) }}</p>
               <p class="text-[11px] text-slate-400">VND</p>
             </div>
           </div>
 
           <ul class="w-full space-y-2.5">
-            @for (seg of donutSegments; track seg.label) {
+            @for (seg of donutSegments(); track seg.label) {
               <li class="flex items-center gap-2 text-sm">
                 <span class="h-3 w-3 rounded-sm" [style.background]="seg.color"></span>
                 <span class="flex-1 text-slate-600">{{ seg.label }}</span>
                 <span class="font-semibold text-slate-800">{{ format(seg.value) }}</span>
                 <span class="w-12 text-right text-xs text-slate-400">
-                  {{ (seg.value / donutTotal) * 100 | number : '1.0-0' }}%
+                  {{ (seg.value / donutTotal()) * 100 | number : '1.0-0' }}%
                 </span>
               </li>
             }
@@ -202,7 +226,7 @@
     </div>
 
     <ul class="mt-4 divide-y divide-slate-100">
-      @for (tx of recentTransactions; track $index) {
+      @for (tx of recentTransactions(); track $index) {
         <li class="flex items-center gap-3 py-3">
           <span
             class="flex h-10 w-10 items-center justify-center rounded-full"

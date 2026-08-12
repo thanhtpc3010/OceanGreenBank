@@ -28,7 +28,8 @@ public class TransactionsController : ControllerBase
                 request.ToAccountId,
                 request.ReceiverAccount,
                 request.ReceiverName,
-                request.ReceiverBankCode),
+                request.ReceiverBankCode,
+                request.Category),
             ct));
 
     [HttpPost("{id}/cancel")]
