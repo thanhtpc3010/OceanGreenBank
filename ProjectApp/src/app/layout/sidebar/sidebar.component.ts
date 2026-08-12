@@ -23,7 +23,7 @@ export class SidebarComponent {
   protected readonly navItems: NavItem[] = [
     { label: 'Dashboard', icon: 'dashboard', href: '/dashboard' },
     { label: 'Tài khoản', icon: 'account', href: '/account' },
-    { label: 'Chuyển tiền', icon: 'transfer', comingSoon: true },
+    { label: 'Chuyển tiền', icon: 'transfer', href: '/transfer' },
     { label: 'Tiết kiệm', icon: 'savings', comingSoon: true },
     { label: 'Ủng hộ MTTQ', icon: 'donate', comingSoon: true },
     { label: 'PFM AI Bot', icon: 'bot', comingSoon: true },

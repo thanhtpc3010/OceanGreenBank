@@ -60,5 +60,6 @@ public class TransactionQuery : ITransactionQueryService,
         t.Description,
         t.Status,
         t.Type,
+        t.Category,
         t.CreatedDate);
 }
