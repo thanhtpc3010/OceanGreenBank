@@ -14,4 +14,5 @@ public sealed record CreateTransactionRequest(
     string? ReceiverAccount = null,
     string? ReceiverName = null,
     string? ReceiverBankCode = null,
-    TransactionCategory Category = TransactionCategory.Other);
+    TransactionCategory Category = TransactionCategory.Other,
+    bool IsEarlyWithdrawal = false);

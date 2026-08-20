@@ -3,13 +3,20 @@ using ProjectService.Application.Common.Base;
 using ProjectService.Application.Common.Interfaces;
 using ProjectService.Application.Services.DTOs;
 using ProjectService.Domain.Entity;
+using ProjectService.Domain.Enum;
 using ProjectService.Domain.Events;
 using ProjectService.Domain.Exceptions;
 
 namespace ProjectService.Application.Services.Commands;
 
 // ============================ REQUEST ============================
-public sealed record CreateAccountCommand(string UserId, string Currency) : BaseCommand<AccountDto>;
+public sealed record CreateAccountCommand(
+    string UserId,
+    string Currency,
+    AccountType Type = AccountType.Normal,
+    int? SavingsTermMonths = null,
+    decimal? InterestRate = null,
+    DateTime? SavingsStartDate = null) : BaseCommand<AccountDto>;
 
 public sealed record UpdateAccountCommand(
     string AccountId,
@@ -80,7 +87,17 @@ public class AccountCommand :
             UserId = request.UserId,
             AccountNumber = GenerateAccountNumber(),
             Currency = request.Currency,
-            Balance = 0m
+            Balance = 0m,
+            Type = request.Type,
+            SavingsTermMonths = request.SavingsTermMonths,
+            InterestRate = request.InterestRate,
+            SavingsStartDate = request.Type == AccountType.Savings
+                ? DateTime.SpecifyKind(request.SavingsStartDate ?? DateTime.UtcNow, DateTimeKind.Utc)
+                : null,
+            SavingsMaturityDate = request.Type == AccountType.Savings
+                ? (DateTime.SpecifyKind(request.SavingsStartDate ?? DateTime.UtcNow, DateTimeKind.Utc)
+                    .AddMonths(request.SavingsTermMonths ?? 1))
+                : null
         };
 
         await _accountRepository.AddAsync(account, ct);
@@ -132,5 +149,10 @@ public class AccountCommand :
         account.Balance,
         account.Currency,
         account.IsActive,
+        account.Type,
+        account.SavingsTermMonths,
+        account.InterestRate,
+        account.SavingsStartDate,
+        account.SavingsMaturityDate,
         account.CreatedDate);
 }

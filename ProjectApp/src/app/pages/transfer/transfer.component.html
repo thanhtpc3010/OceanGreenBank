@@ -29,7 +29,7 @@
         >
           @for (acc of accounts(); track acc.id) {
             <option [value]="acc.id" [disabled]="!acc.isActive">
-              {{ acc.accountNumber }} — {{ acc.balance | number : '1.0-0' }} {{ acc.currency }}{{ acc.isActive ? '' : ' (đã đóng)' }}
+              {{ acc.type === 1 ? '🏦 Tiết kiệm · ' : '' }}{{ acc.accountNumber }} — {{ acc.balance | number : '1.0-0' }} {{ acc.currency }}{{ acc.isActive ? '' : ' (đã đóng)' }}
             </option>
           }
         </select>
@@ -37,6 +37,36 @@
           <p class="mt-1.5 text-xs text-slate-500">
             Số dư khả dụng: <b class="text-brand-600">{{ fromAccount()!.balance | number : '1.0-0' }} VND</b>
           </p>
+        }
+
+        <!-- Cảnh báo tài khoản tiết kiệm -->
+        @if (sourceIsSavings()) {
+          <div class="mt-2 rounded-xl border px-4 py-3 text-sm"
+            [class.border-emerald-200]="sourceMatured()"
+            [class.bg-emerald-50]="sourceMatured()"
+            [class.border-amber-300]="!sourceMatured()"
+            [class.bg-amber-50]="!sourceMatured()">
+            <p class="font-semibold" [class.text-emerald-700]="sourceMatured()" [class.text-amber-700]="!sourceMatured()">
+              @if (sourceMatured()) {
+                ✓ Tài khoản tiết kiệm đã đáo hạn — được phép rút, lãi suất {{ fromAccount()!.interestRate }}%/năm sẽ được cộng vào số dư.
+              } @else {
+                ⚠ Tài khoản tiết kiệm chưa đáo hạn (đến {{ sourceMaturityLabel() }}).
+              }
+            </p>
+            @if (!sourceMatured()) {
+              <label class="mt-2 flex cursor-pointer items-start gap-2 text-xs text-amber-800">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="isEarlyWithdrawal"
+                  name="earlyWithdrawal"
+                  class="mt-0.5 h-4 w-4 rounded border-amber-300 text-amber-600 focus:ring-amber-400"
+                />
+                <span>
+                  Tôi hiểu và muốn <b>rút trước hạn (khẩn cấp)</b> — sẽ <b>mất toàn bộ lãi</b> của chu kỳ này. Khoản dư còn lại được gia hạn kỳ hạn mới.
+                </span>
+              </label>
+            }
+          </div>
         }
       </div>
 
@@ -266,6 +296,18 @@
           <div class="flex justify-between px-4 py-3">
             <dt class="text-slate-500">Nội dung</dt>
             <dd class="font-semibold text-slate-800">{{ description() }}</dd>
+          </div>
+        }
+        @if (sourceIsSavings()) {
+          <div class="flex justify-between px-4 py-3">
+            <dt class="text-slate-500">Loại rút tiết kiệm</dt>
+            <dd class="font-semibold text-slate-800">
+              @if (sourceMatured()) {
+                <span class="text-emerald-600">Đáo hạn (cộng lãi)</span>
+              } @else {
+                <span class="text-amber-600">Rút trước hạn (mất lãi chu kỳ)</span>
+              }
+            </dd>
           </div>
         }
       </dl>

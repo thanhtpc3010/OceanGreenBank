@@ -1,6 +1,9 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
+import { AuthService } from '../../core/auth/auth.service';
+import { AutoEarnService } from '../../core/services/auto-earn.service';
 import { TransactionService, TxCategory, TransactionDto } from '../../core/services/transaction.service';
 import { UserService } from '../../core/services/user.service';
 
@@ -45,25 +48,30 @@ const CATEGORY_NAMES: Record<TxCategory, string> = {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [DecimalPipe, DatePipe],
+  imports: [DecimalPipe, DatePipe, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly txService = inject(TransactionService);
+  private readonly autoEarnService = inject(AutoEarnService);
+  private readonly auth = inject(AuthService);
 
   protected readonly today = new Date();
   protected readonly userName = signal('Nguyễn Văn A');
+  protected readonly isAdmin = computed(() => this.auth.hasPermission('USER.READ'));
 
   // CASA
   protected readonly accountNumber = signal('9999 8888');
   protected readonly balance = signal(15_000_000);
 
-  // AutoEarn
+  // AutoEarn (dữ liệu thật từ API)
   protected readonly autoEarnActive = signal(true);
   protected readonly interestRate = signal(4.5);
-  protected readonly monthlyAccum = signal(42_500);
+  protected readonly monthlyAccum = signal(0);
+  protected readonly autoEarnRunTime = signal('00:00');
+  protected readonly autoEarnPrincipal = signal(0);
 
   // ===== PFM (dữ liệu thật từ API) =====
   protected readonly donutSegments = signal<DonutSegment[]>([]);
@@ -92,6 +100,20 @@ export class DashboardComponent implements OnInit {
       this.loadRecent(firstActive.id);
     }
     await this.loadPfm(profile.id);
+    await this.loadAutoEarn(profile.id);
+  }
+
+  private async loadAutoEarn(userId: string): Promise<void> {
+    try {
+      const ae = await this.autoEarnService.getSummary(userId);
+      this.autoEarnActive.set(ae.isActive);
+      this.interestRate.set(ae.annualInterestRate);
+      this.monthlyAccum.set(ae.monthlyAccum);
+      this.autoEarnRunTime.set(ae.runTime);
+      this.autoEarnPrincipal.set(ae.totalPrincipal);
+    } catch {
+      // Giữ giá trị mặc định nếu API lỗi.
+    }
   }
 
   private async loadPfm(userId: string): Promise<void> {

@@ -1,0 +1,198 @@
+<div class="mx-auto max-w-5xl space-y-5 p-3 lg:p-5">
+  <!-- Header -->
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Sổ tiết kiệm theo chu kỳ</h1>
+      <p class="text-sm text-slate-500">Tự động trích tiền vào tài khoản tiết kiệm đều đặn mỗi kỳ</p>
+    </div>
+    <div class="rounded-xl bg-gradient-to-br from-brand-50 to-ocean-50 px-4 py-2 text-right">
+      <p class="text-[11px] font-medium text-slate-500">Tổng tiền đã tiết kiệm</p>
+      <p class="text-lg font-extrabold text-brand-600">{{ totalPlan() | number : '1.0-0' }} VND</p>
+    </div>
+  </div>
+
+  <!-- Thông báo -->
+  @if (error()) {
+    <div class="flex items-center gap-2 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{{ error() }}</div>
+  }
+  @if (success()) {
+    <div class="flex items-center gap-2 rounded-xl bg-brand-50 px-4 py-3 text-sm text-brand-700">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+      </svg>
+      {{ success() }}
+    </div>
+  }
+
+  <!-- ============ FORM TẠO KẾ HOẠCH ============ -->
+  <form (ngSubmit)="createPlan()" class="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <h2 class="text-base font-bold text-slate-800">Tạo kế hoạch gửi tiết kiệm</h2>
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div>
+        <label class="mb-1.5 block text-sm font-semibold text-slate-700">Tài khoản nguồn (trích tiền)</label>
+        <select
+          [(ngModel)]="sourceAccountId"
+          name="source"
+          (change)="targetAccountId.set('')"
+          class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+        >
+          @for (acc of sourceAccounts(); track acc.id) {
+            <option [value]="acc.id">{{ acc.accountNumber }} — {{ acc.balance | number : '1.0-0' }} VND</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="mb-1.5 block text-sm font-semibold text-slate-700">Tài khoản tiết kiệm đích</label>
+        <select
+          [(ngModel)]="targetAccountId"
+          name="target"
+          class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+        >
+          @for (acc of targetAccounts(); track acc.id) {
+            <option [value]="acc.id">{{ acc.accountNumber }} — {{ acc.balance | number : '1.0-0' }} VND</option>
+          }
+        </select>
+        @if (targetAccounts().length === 0) {
+          <p class="mt-1.5 text-xs text-rose-500">Bạn cần thêm ít nhất 1 tài khoản khác để làm sổ tiết kiệm đích.</p>
+        }
+      </div>
+      <div>
+        <label class="mb-1.5 block text-sm font-semibold text-slate-700">Số tiền gửi mỗi kỳ (VND) *</label>
+        <input
+          type="number"
+          [(ngModel)]="amount"
+          name="amount"
+          min="1000"
+          placeholder="0"
+          class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+        />
+      </div>
+      <div>
+        <label class="mb-1.5 block text-sm font-semibold text-slate-700">Chu kỳ gửi</label>
+        <div class="grid grid-cols-3 gap-2">
+          @for (opt of cycleOptions; track opt.value) {
+            <button
+              type="button"
+              (click)="cycle.set(opt.value)"
+              class="rounded-xl border px-2 py-2.5 text-xs font-semibold transition"
+              [class.border-brand-500]="cycle() === opt.value"
+              [class.bg-brand-50]="cycle() === opt.value"
+              [class.text-brand-700]="cycle() === opt.value"
+              [class.border-slate-200]="cycle() !== opt.value"
+              [class.text-slate-600]="cycle() !== opt.value"
+            >
+              {{ opt.label }}
+            </button>
+          }
+        </div>
+      </div>
+      <div class="sm:col-span-2">
+        <label class="mb-1.5 block text-sm font-semibold text-slate-700">Ngày bắt đầu</label>
+        <input
+          type="date"
+          [(ngModel)]="startDate"
+          name="start"
+          class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+        />
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end">
+      <button
+        type="submit"
+        [disabled]="saving()"
+        class="rounded-xl bg-gradient-to-r from-brand-600 to-ocean-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
+      >
+        {{ saving() ? 'Đang tạo...' : 'Tạo kế hoạch' }}
+      </button>
+    </div>
+  </form>
+
+  <!-- ============ DANH SÁCH KẾ HOẠCH ============ -->
+  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-bold text-slate-800">Kế hoạch của bạn</h2>
+      <span class="rounded-full bg-ocean-50 px-3 py-1 text-xs font-semibold text-ocean-700">
+        {{ plans().filter((p) => p.isActive).length }} đang hoạt động
+      </span>
+    </div>
+
+    @if (loading()) {
+      <p class="py-8 text-center text-sm text-slate-400">Đang tải...</p>
+    } @else if (plans().length === 0) {
+      <p class="rounded-xl border border-dashed border-slate-200 py-8 text-center text-sm text-slate-400">
+        Chưa có kế hoạch tiết kiệm nào. Tạo kế hoạch đầu tiên ở trên nhé!
+      </p>
+    } @else {
+      <div class="mt-4 space-y-3">
+        @for (plan of plans(); track plan.id) {
+          <article
+            class="flex flex-col gap-3 rounded-2xl border p-4 sm:flex-row sm:items-center sm:justify-between"
+            [class.border-slate-200]="!plan.isActive"
+            [class.border-brand-200]="plan.isActive"
+            [class.bg-gradient-to-r]="plan.isActive"
+            [class.from-white]="plan.isActive"
+            [class.to-brand-50]="plan.isActive"
+            [class.bg-slate-50]="!plan.isActive"
+            [class.opacity-60]="!plan.isActive"
+          >
+            <div class="flex items-center gap-3">
+              <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-100 text-brand-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
+                </svg>
+              </span>
+              <div>
+                <p class="text-sm font-semibold text-slate-800">
+                  {{ plan.sourceAccountNumber }}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="mx-1 inline h-4 w-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                  </svg>
+                  {{ plan.targetAccountNumber }}
+                </p>
+                <p class="text-xs text-slate-500">
+                  {{ plan.amount | number : '1.0-0' }} VND / {{ savingsService.cycleLabel(plan.cycle) }}
+                  · Đã gửi {{ plan.totalDeposits }} kỳ · {{ plan.totalSaved | number : '1.0-0' }} VND
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <div class="text-right text-xs text-slate-500">
+                <p>Kỳ tới: <b class="text-slate-700">{{ formatDate(plan.nextDepositDate) }}</b></p>
+                <p class="mt-0.5">
+                  <span
+                    class="rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                    [class.bg-emerald-100]="plan.isActive"
+                    [class.text-emerald-700]="plan.isActive"
+                    [class.bg-slate-200]="!plan.isActive"
+                    [class.text-slate-500]="!plan.isActive"
+                  >
+                    {{ plan.isActive ? 'Hoạt động' : 'Đã hủy' }}
+                  </span>
+                </p>
+              </div>
+              @if (plan.isActive) {
+                <button
+                  type="button"
+                  (click)="depositNow(plan)"
+                  class="rounded-xl bg-gradient-to-r from-brand-600 to-ocean-600 px-3.5 py-2 text-xs font-semibold text-white transition hover:opacity-90"
+                >
+                  Gửi ngay
+                </button>
+                <button
+                  type="button"
+                  (click)="cancelPlan(plan)"
+                  class="rounded-xl bg-white px-3.5 py-2 text-xs font-semibold text-rose-600 ring-1 ring-slate-200 transition hover:bg-rose-50"
+                >
+                  Hủy
+                </button>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+</div>

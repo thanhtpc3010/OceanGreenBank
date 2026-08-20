@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProjectService.Application.Services.DTOs;
 using ProjectService.Application.Services.Queries;
@@ -6,6 +7,7 @@ using ProjectService.Application.Services.Queries;
 namespace ProjectService.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class PfmController : ControllerBase
 {

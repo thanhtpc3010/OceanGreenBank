@@ -32,6 +32,7 @@ export class TransferComponent implements OnInit {
   protected readonly description = signal('');
   protected readonly category = signal<TxCategory>(TxCategory.Other);
   protected readonly categoryOptions = CATEGORY_OPTIONS;
+  protected readonly isEarlyWithdrawal = signal(false);
 
   /* ---- Trạng thái tra cứu người nhận ---- */
   protected readonly resolved = signal<ReceiverInfo | null>(null);
@@ -50,6 +51,26 @@ export class TransferComponent implements OnInit {
   protected readonly fromAccount = computed(
     () => this.accounts().find((a) => a.id === this.fromAccountId()) ?? null,
   );
+
+  /** Nguồn có phải tài khoản tiết kiệm? */
+  protected readonly sourceIsSavings = computed(
+    () => this.fromAccount()?.type === 1,
+  );
+
+  /** Tài khoản tiết kiệm nguồn đã đáo hạn chưa? */
+  protected readonly sourceMatured = computed(() => {
+    const acc = this.fromAccount();
+    if (!acc || acc.type !== 1 || !acc.savingsMaturityDate) return true;
+    return new Date(acc.savingsMaturityDate).getTime() <= Date.now();
+  });
+
+  /** Ngày đáo hạn hiển thị. */
+  protected readonly sourceMaturityLabel = computed(() => {
+    const acc = this.fromAccount();
+    if (!acc?.savingsMaturityDate) return '';
+    const d = new Date(acc.savingsMaturityDate);
+    return isNaN(d.getTime()) ? '' : d.toLocaleDateString('vi-VN');
+  });
 
   /** Phí chuyển tiền: nội bộ 0đ, liên ngân hàng 5.000đ. */
   protected readonly fee = computed(() =>
@@ -117,6 +138,14 @@ export class TransferComponent implements OnInit {
       return;
     }
 
+    // Tài khoản tiết kiệm: chưa đáo hạn → bắt buộc xác nhận rút trước hạn.
+    if (this.sourceIsSavings() && !this.sourceMatured() && !this.isEarlyWithdrawal()) {
+      this.error.set(
+        `Tài khoản tiết kiệm chưa đáo hạn (${this.sourceMaturityLabel()}). Chỉ được rút khi hết kỳ hạn, hoặc đánh dấu “Rút trước hạn” (mất toàn bộ lãi chu kỳ).`,
+      );
+      return;
+    }
+
     if (this.transferType() === 'internal') {
       if (!this.receiverAccount().trim()) {
         this.error.set('Vui lòng nhập số tài khoản nhận.');
@@ -152,6 +181,7 @@ export class TransferComponent implements OnInit {
         receiverAccount: isInternal ? undefined : this.receiverAccount().trim(),
         receiverName: isInternal ? (this.resolved()?.ownerName ?? undefined) : this.receiverName().trim(),
         receiverBankCode: isInternal ? undefined : this.receiverBankCode().trim(),
+        isEarlyWithdrawal: this.isEarlyWithdrawal(),
       });
       this.result.set(tx);
       this.step.set('result');
@@ -179,6 +209,7 @@ export class TransferComponent implements OnInit {
     this.amount.set(null);
     this.description.set('');
     this.category.set(TxCategory.Other);
+    this.isEarlyWithdrawal.set(false);
   }
 
   /** Tải lịch sử giao dịch của tài khoản. */

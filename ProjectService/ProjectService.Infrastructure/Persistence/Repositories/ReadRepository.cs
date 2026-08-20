@@ -28,4 +28,16 @@ public class ReadRepository<T> : IReadRepository<T> where T : BaseEntity
         Expression<Func<T, bool>> predicate,
         CancellationToken cancellationToken = default)
         => await _dbContext.Set<T>().AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<T>> FindWithIncludesAsync(
+        Expression<Func<T, bool>> predicate,
+        params Expression<Func<T, object?>>[] includes)
+    {
+        IQueryable<T> query = _dbContext.Set<T>().AsNoTracking().Where(predicate);
+        foreach (var include in includes)
+        {
+            query = query.Include(include);
+        }
+        return await query.ToListAsync();
+    }
 }

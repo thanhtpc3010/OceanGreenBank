@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProjectService.Application.Services.Commands;
 using ProjectService.Application.Services.DTOs;
@@ -7,6 +8,7 @@ using ProjectService.Application.Services.Queries;
 namespace ProjectService.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
@@ -25,6 +27,11 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDto>> GetById(string id, CancellationToken ct)
         => Ok(await _mediator.Send(new GetUserQuery(id), ct));
+
+    /// <summary>Vai trò & quyền của user (phân quyền RBAC).</summary>
+    [HttpGet("{id}/permissions")]
+    public async Task<ActionResult<UserPermissionsDto>> GetPermissions(string id, CancellationToken ct)
+        => Ok(await _mediator.Send(new GetUserPermissionsQuery(id), ct));
 
     // ---- Command (Write side) ----
     [HttpPost]
