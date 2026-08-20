@@ -111,6 +111,7 @@ export class TransactionService {
     receiverAccount?: string;
     receiverName?: string;
     receiverBankCode?: string;
+    isEarlyWithdrawal?: boolean;
   }): Promise<TransactionDto> {
     return firstValueFrom(
       this.http.post<TransactionDto>(`${this.apiUrl}/transactions`, {
@@ -123,6 +124,7 @@ export class TransactionService {
         receiverAccount: params.receiverAccount ?? null,
         receiverName: params.receiverName ?? null,
         receiverBankCode: params.receiverBankCode ?? null,
+        isEarlyWithdrawal: params.isEarlyWithdrawal ?? false,
       }),
     );
   }

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -27,10 +27,7 @@ export class LoginComponent {
   protected readonly regConfirmPassword = signal('');
   protected readonly recaptcha = signal(false);
 
-  constructor(
-    private readonly router: Router,
-    private readonly auth: AuthService,
-  ) {}
+  constructor(private readonly router: Router, private readonly auth: AuthService) {}
 
   protected setTab(tab: 'login' | 'register'): void {
     this.activeTab.set(tab);
@@ -45,22 +42,28 @@ export class LoginComponent {
 
   private async doLogin(): Promise<void> {
     const email = this.loginEmail().trim();
-    if (!email || !this.loginPassword().trim()) {
+    const password = this.loginPassword();
+    if (!email || !password.trim()) {
       this.error.set('Vui lòng nhập đầy đủ thông tin.');
       return;
     }
     this.loading.set(true);
     this.error.set('');
-    // TODO: gọi API backend thật POST /api/auth/login
-    await new Promise((r) => setTimeout(r, 800));
-    this.auth.login(email, 'Nguyễn Văn A');
-    this.loading.set(false);
-    this.router.navigate(['/dashboard']);
+    try {
+      // Đăng nhập thật: POST /api/auth/login → JWT + roles/permissions
+      await this.auth.login(email, password);
+      this.router.navigate(['/dashboard']);
+    } catch (e) {
+      this.error.set(this.extractMessage(e));
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   private async doRegister(): Promise<void> {
+    const fullName = this.regFullName().trim();
     const email = this.regEmail().trim();
-    if (!this.regFullName().trim() || !email || !this.regPassword().trim()) {
+    if (!fullName || !email || !this.regPassword().trim()) {
       this.error.set('Vui lòng nhập đầy đủ thông tin.');
       return;
     }
@@ -74,10 +77,27 @@ export class LoginComponent {
     }
     this.loading.set(true);
     this.error.set('');
-    // TODO: gọi API backend thật POST /api/auth/register
-    await new Promise((r) => setTimeout(r, 1000));
-    this.auth.register(email, this.regFullName().trim());
-    this.loading.set(false);
-    this.router.navigate(['/dashboard']);
+    try {
+      // Đăng ký thật: POST /api/auth/register → JWT + roles/permissions
+      await this.auth.register({
+        fullName,
+        email,
+        phone: this.regPhone().trim() || '0900000000',
+        identityCard: '',
+        dateOfBirth: '2000-01-01',
+        password: this.regPassword(),
+      });
+      this.router.navigate(['/dashboard']);
+    } catch (e) {
+      this.error.set(this.extractMessage(e));
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  /** Lấy message từ lỗi API (vd: "Tài khoản đã bị khóa", "Email hoặc mật khẩu không đúng"). */
+  private extractMessage(e: unknown): string {
+    const body = (e as { error?: { message?: string } })?.error;
+    return body?.message ?? (e instanceof Error ? e.message : 'Đã có lỗi xảy ra. Vui lòng thử lại.');
   }
 }

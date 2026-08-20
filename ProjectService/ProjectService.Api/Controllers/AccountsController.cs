@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProjectService.Application.Services.Commands;
 using ProjectService.Application.Services.DTOs;
@@ -7,6 +8,7 @@ using ProjectService.Application.Services.Queries;
 namespace ProjectService.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class AccountsController : ControllerBase
 {
@@ -34,7 +36,13 @@ public class AccountsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<AccountDto>> Create([FromBody] CreateAccountRequest request, CancellationToken ct)
         => Ok(await _mediator.Send(
-            new CreateAccountCommand(request.UserId, request.Currency),
+            new CreateAccountCommand(
+                request.UserId,
+                request.Currency,
+                request.Type,
+                request.SavingsTermMonths,
+                request.InterestRate,
+                request.SavingsStartDate),
             ct));
 
     [HttpPut("{id}")]

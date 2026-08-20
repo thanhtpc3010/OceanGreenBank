@@ -34,6 +34,9 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IDateTime, DateTimeService>();
 
+        // Background service AutoEarn (sinh lời tự động) — chạy ngay khi server start.
+        services.AddHostedService<AutoEarnHostedService>();
+
         return services;
     }
 }

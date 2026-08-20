@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using ProjectService.Application.Common.Behaviors;
+using ProjectService.Application.Services;
 using ProjectService.Application.Services.Commands;
 using ProjectService.Application.Services.Queries;
 
@@ -28,6 +29,9 @@ public static class DependencyInjection
         services.AddScoped<IUserQueryService, UserQuery>();
         services.AddScoped<IAccountQueryService, AccountQuery>();
         services.AddScoped<ITransactionQueryService, TransactionQuery>();
+
+        // Dịch vụ AutoEarn (sinh lời tự động)
+        services.AddScoped<IAutoEarnService, AutoEarnService>();
 
         return services;
     }
