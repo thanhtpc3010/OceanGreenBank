@@ -145,7 +145,13 @@ export class DashboardComponent implements OnInit {
           .map((t: TransactionDto) => ({
             desc: `${CATEGORY_NAMES[t.category] ?? 'Khác'} — ${t.description || 'Chuyển tiền'}`,
             amount: -t.amount,
-            time: new Date(t.createdDate).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+            time: new Date(t.createdDate).toLocaleString('vi-VN', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
             color: '#f43f5e',
           })),
       );

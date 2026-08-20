@@ -422,7 +422,7 @@
             @for (tx of history(); track tx.id) {
               <tr class="hover:bg-slate-50">
                 <td class="py-3 pr-3 font-mono text-xs text-slate-500">{{ tx.transactionCode }}</td>
-                <td class="py-3 pr-3 text-slate-600">{{ tx.createdDate | date : 'dd/MM HH:mm' }}</td>
+                <td class="py-3 pr-3 text-slate-600">{{ tx.createdDate | date : 'dd/MM/yyyy HH:mm' }}</td>
                 <td class="py-3 pr-3">
                   <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
                     {{ typeLabel(tx.type) }}

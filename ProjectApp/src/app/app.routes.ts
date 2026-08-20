@@ -9,6 +9,7 @@ import { EditAccountComponent } from './pages/account/edit-account.component';
 import { LoginComponent } from './pages/login/login.component';
 import { PasswordAccountComponent } from './pages/account/password-account.component';
 import { TransferComponent } from './pages/transfer/transfer.component';
+import { TransactionsComponent } from './pages/transactions/transactions.component';
 import { SavingsComponent } from './pages/savings/savings.component';
 import { AdminUsersComponent } from './pages/admin/admin-users.component';
 import { AdminAutoEarnComponent } from './pages/admin/admin-auto-earn.component';
@@ -24,6 +25,7 @@ export const routes: Routes = [
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'transfer', component: TransferComponent },
+      { path: 'transactions', component: TransactionsComponent },
       { path: 'savings', component: SavingsComponent },
       { path: 'admin/users', component: AdminUsersComponent, canActivate: [adminGuard] },
       { path: 'admin/auto-earn', component: AdminAutoEarnComponent, canActivate: [adminGuard] },
