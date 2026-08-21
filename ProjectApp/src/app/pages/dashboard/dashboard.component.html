@@ -81,6 +81,16 @@
           </div>
         </div>
 
+      <div class="mt-5 rounded-xl border border-slate-100 bg-slate-50 p-4">
+        <div class="flex items-center justify-between text-xs text-slate-500">
+          <span>Ngày tự động trích</span>
+          <span class="font-semibold text-slate-700">Hằng ngày ({{ autoEarnRunTime() }})</span>
+        </div>
+        <div class="mt-3 flex items-center justify-between text-xs text-slate-500">
+          <span>Tiền gốc tham gia</span>
+          <span class="font-semibold text-slate-700">{{ autoEarnPrincipal() | number : '1.0-0' }} VND</span>
+        </div>
+      </div>
         <div class="mt-5 rounded-xl border border-slate-100 bg-slate-50 p-4">
           <div class="flex items-center justify-between text-xs text-slate-500">
             <span>Ngày tự động trích</span>
@@ -92,6 +102,20 @@
           </div>
         </div>
 
+      @if (isAdmin()) {
+        <button
+          type="button"
+          routerLink="/admin/auto-earn"
+          class="mt-5 w-full rounded-xl bg-gradient-to-r from-brand-600 to-ocean-600 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+        >
+          Quản lý AutoEarn
+        </button>
+      } @else {
+        <p class="mt-5 rounded-xl bg-slate-50 py-2.5 text-center text-xs text-slate-400">
+          Quản trị viên có thể cấu hình thời gian sinh lời.
+        </p>
+      }
+    </section>
         <p-button
           label="Quản lý AutoEarn"
           styleClass="!mt-5 !w-full !bg-gradient-to-r !from-brand-600 !to-ocean-600 !text-white !font-semibold"
@@ -101,6 +125,67 @@
   </div>
 
   <!-- PFM Charts -->
+  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-base font-bold text-slate-800">AI PFM - Thống kê thu chi tháng này</h2>
+        <p class="text-xs text-slate-500">Phân tích tự động bởi AI PFM Bot</p>
+      </div>
+      <span class="rounded-full bg-ocean-50 px-3 py-1 text-xs font-semibold text-ocean-700">BOT PFM tổng hợp</span>
+    </div>
+
+    <!-- Tóm tắt Thu / Chi / Số dư -->
+    @if (!pfmLoading()) {
+      <div class="mt-5 grid gap-3 sm:grid-cols-3">
+        <div class="rounded-xl bg-gradient-to-br from-brand-50 to-ocean-50 p-4">
+          <p class="text-[11px] font-medium text-slate-500">Tổng thu</p>
+          <p class="mt-1 text-xl font-extrabold text-brand-600">{{ format(pfmIncome()) }} VND</p>
+        </div>
+        <div class="rounded-xl bg-gradient-to-br from-rose-50 to-orange-50 p-4">
+          <p class="text-[11px] font-medium text-slate-500">Tổng chi</p>
+          <p class="mt-1 text-xl font-extrabold text-rose-600">{{ format(pfmExpense()) }} VND</p>
+        </div>
+        <div class="rounded-xl bg-slate-50 p-4">
+          <p class="text-[11px] font-medium text-slate-500">Số dư (Thu − Chi)</p>
+          <p
+            class="mt-1 text-xl font-extrabold"
+            [class.text-emerald-600]="pfmNet() >= 0"
+            [class.text-rose-600]="pfmNet() < 0"
+          >
+            {{ pfmNet() >= 0 ? '+' : '' }}{{ format(pfmNet()) }} VND
+          </p>
+        </div>
+      </div>
+    }
+
+    <div class="mt-6 grid gap-8 lg:grid-cols-2">
+      <!-- Donut: Chi tiêu -->
+      <div>
+        <p class="text-sm font-semibold text-slate-700">Cơ cấu chi tiêu</p>
+        <div class="mt-4 flex flex-col items-center gap-4 sm:flex-row">
+          <div class="relative">
+            <svg viewBox="0 0 42 42" class="h-36 w-36 -rotate-90">
+              <circle cx="21" cy="21" r="15.9" fill="none" stroke-width="5" class="stroke-slate-100"></circle>
+              @for (seg of donutSegments(); track seg.label; let i = $index) {
+                <circle
+                  cx="21"
+                  cy="21"
+                  r="15.9"
+                  fill="none"
+                  stroke-width="5"
+                  stroke-linecap="round"
+                  [attr.stroke]="seg.color"
+                  [attr.stroke-dasharray]="segDash(seg)"
+                  [attr.stroke-dashoffset]="segOffset(i)"
+                ></circle>
+              }
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <p class="text-[11px] text-slate-400">Tổng chi</p>
+              <p class="text-lg font-extrabold text-slate-800">{{ format(donutTotal()) }}</p>
+              <p class="text-[11px] text-slate-400">VND</p>
+            </div>
+          </div>
   <p-card styleClass="!rounded-2xl !border-slate-200 !shadow-sm">
     <ng-template pTemplate="header">
       <div class="flex items-center justify-between px-5 pt-5">
@@ -126,6 +211,20 @@
               </div>
             </div>
 
+          <ul class="w-full space-y-2.5">
+            @for (seg of donutSegments(); track seg.label) {
+              <li class="flex items-center gap-2 text-sm">
+                <span class="h-3 w-3 rounded-sm" [style.background]="seg.color"></span>
+                <span class="flex-1 text-slate-600">{{ seg.label }}</span>
+                <span class="font-semibold text-slate-800">{{ format(seg.value) }}</span>
+                <span class="w-12 text-right text-xs text-slate-400">
+                  {{ (seg.value / donutTotal()) * 100 | number : '1.0-0' }}%
+                </span>
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
             <ul class="w-full space-y-2.5">
               @for (seg of donutSegments; track seg.label) {
                 <li class="flex items-center gap-2 text-sm">
@@ -164,6 +263,45 @@
   </p-card>
 
   <!-- Giao dịch gần đây -->
+  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-bold text-slate-800">Giao dịch gần đây</h2>
+      <a
+        routerLink="/transactions"
+        class="text-sm font-semibold text-brand-600 transition hover:text-brand-700"
+      >
+        Xem tất cả
+      </a>
+    </div>
+
+    <ul class="mt-4 divide-y divide-slate-100">
+      @for (tx of recentTransactions(); track $index) {
+        <li class="flex items-center gap-3 py-3">
+          <span
+            class="flex h-10 w-10 items-center justify-center rounded-full"
+            [style.background]="tx.color + '1a'"
+          >
+            @if (tx.amount > 0) {
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" [style.color]="tx.color" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6 9 12.75l4.286-4.286a11.948 11.948 0 0 1 4.306 6.43l.776 2.898m0 0 3.182-5.511m-3.182 5.51-5.511-3.181" />
+              </svg>
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" [style.color]="tx.color" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6 9 12.75l4.286-4.286a11.948 11.948 0 0 1 4.306 6.43l.776 2.898m0 0 3.182-5.511m-3.182 5.51-5.511-3.181" />
+              </svg>
+            }
+          </span>
+          <div class="flex-1">
+            <p class="text-sm font-medium text-slate-700">{{ tx.desc }}</p>
+            <p class="text-xs text-slate-400">{{ tx.time }}</p>
+          </div>
+          <span class="text-sm font-bold" [style.color]="tx.color">
+            {{ tx.amount > 0 ? '+' : '' }}{{ format(tx.amount) }} VND
+          </span>
+        </li>
+      }
+    </ul>
+  </section>
   <p-card styleClass="!rounded-2xl !border-slate-200 !shadow-sm">
     <ng-template pTemplate="header">
       <div class="flex items-center justify-between px-5 pt-5">

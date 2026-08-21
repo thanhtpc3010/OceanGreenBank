@@ -78,7 +78,8 @@ public class UserCommand :
             Email = request.Email,
             Phone = request.Phone,
             IdentityCard = request.IdentityCard,
-            DateOfBirth = request.DateOfBirth,
+            // Npgsql yêu cầu DateTime Kind=Utc cho cột timestamptz — request từ JSON là Unspecified.
+            DateOfBirth = DateTime.SpecifyKind(request.DateOfBirth, DateTimeKind.Utc),
             PasswordHash = request.Password,
             Address = request.Address
         };

@@ -18,4 +18,5 @@ public sealed record TransactionDto(
     string? Description,
     TransactionStatus Status,
     TransactionType Type,
+    TransactionCategory Category,
     DateTime CreatedDate);

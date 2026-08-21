@@ -19,20 +19,23 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection")
-            ?? "Server=(localdb)\\mssqllocaldb;Database=OceanGreenBank;Trusted_Connection=True;MultipleActiveResultSets=true";
+            ?? "Host=localhost;Database=OceanGreenBank;Username=postgres;Password=postgres";
 
         // Read side (Query) — NoTracking
         services.AddDbContext<ApplicationReadDbContext>(options =>
-            options.UseSqlServer(connectionString));
+            options.UseNpgsql(connectionString));
 
         // Write side (Command) — tracking
         services.AddDbContext<ApplicationWriteDbContext>(options =>
-            options.UseSqlServer(connectionString));
+            options.UseNpgsql(connectionString));
 
         services.AddScoped(typeof(IReadRepository<>), typeof(ReadRepository<>));
         services.AddScoped(typeof(IWriteRepository<>), typeof(WriteRepository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IDateTime, DateTimeService>();
+
+        // Background service AutoEarn (sinh lời tự động) — chạy ngay khi server start.
+        services.AddHostedService<AutoEarnHostedService>();
 
         return services;
     }

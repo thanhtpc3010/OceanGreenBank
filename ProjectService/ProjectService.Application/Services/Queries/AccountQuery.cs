@@ -63,5 +63,10 @@ public class AccountQuery :
         account.Balance,
         account.Currency,
         account.IsActive,
+        account.Type,
+        account.SavingsTermMonths,
+        account.InterestRate,
+        account.SavingsStartDate,
+        account.SavingsMaturityDate,
         account.CreatedDate);
 }

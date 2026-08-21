@@ -17,7 +17,9 @@ public sealed record CreateTransactionCommand(
     string? ToAccountId,
     string? ReceiverAccount,
     string? ReceiverName,
-    string? ReceiverBankCode) : BaseCommand<TransactionDto>;
+    string? ReceiverBankCode,
+    TransactionCategory Category = TransactionCategory.Other,
+    bool IsEarlyWithdrawal = false) : BaseCommand<TransactionDto>;
 
 public sealed record CancelTransactionCommand(string TransactionId) : BaseCommand<Unit>;
 
@@ -44,15 +46,18 @@ public class TransactionCommand :
 {
     private readonly IWriteRepository<Account> _accountRepository;
     private readonly IWriteRepository<Transaction> _transactionRepository;
+    private readonly IWriteRepository<User> _userRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public TransactionCommand(
         IWriteRepository<Account> accountRepository,
         IWriteRepository<Transaction> transactionRepository,
+        IWriteRepository<User> userRepository,
         IUnitOfWork unitOfWork)
     {
         _accountRepository = accountRepository;
         _transactionRepository = transactionRepository;
+        _userRepository = userRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -75,8 +80,35 @@ public class TransactionCommand :
         if (!fromAccount.IsActive)
             throw new DomainException("Tài khoản gửi đã bị khóa.");
 
+        // User sở hữu tài khoản bị khóa → không được thực hiện giao dịch.
+        var owner = await _userRepository.GetByIdAsync(fromAccount.UserId, ct);
+        if (owner is not null && !owner.IsActive)
+            throw new DomainException("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.");
+
         if (request.Amount <= 0)
             throw new DomainException("Số tiền giao dịch phải lớn hơn 0.");
+
+        // ===== RULES TÀI KHOẢN TIẾT KIỆM =====
+        if (fromAccount.Type == AccountType.Savings)
+        {
+            var now = DateTime.UtcNow;
+            var matured = fromAccount.SavingsMaturityDate.HasValue
+                          && now >= fromAccount.SavingsMaturityDate.Value;
+
+            if (!matured && !request.IsEarlyWithdrawal)
+                throw new DomainException(
+                    "Tài khoản tiết kiệm chưa đáo hạn. Chỉ được rút khi hết kỳ hạn, hoặc dùng rút trước hạn (mất toàn bộ lãi chu kỳ).");
+
+            if (matured)
+            {
+                // Đáo hạn: cộng lãi suất kỳ hạn vào số dư trước khi xử lý rút.
+                var interest = fromAccount.Balance
+                    * (fromAccount.InterestRate ?? 0) / 100m
+                    * (fromAccount.SavingsTermMonths ?? 1) / 12m;
+                fromAccount.Balance += Math.Round(interest, 0, MidpointRounding.AwayFromZero);
+            }
+            // Rút trước hạn (IsEarlyWithdrawal): KHÔNG cộng lãi → mất toàn bộ lãi chu kỳ.
+        }
 
         var fee = request.Type == TransactionType.InterbankTransfer ? 5000m : 0m;
         var totalDebit = request.Amount + fee;
@@ -97,6 +129,14 @@ public class TransactionCommand :
         // Ghi Nợ tài khoản gửi.
         fromAccount.Balance -= totalDebit;
         _accountRepository.Update(fromAccount);
+
+        // Tài khoản tiết kiệm: nếu còn dư sau khi rút → gia hạn kỳ hạn mới.
+        if (fromAccount.Type == AccountType.Savings && fromAccount.Balance > 0)
+        {
+            var now = DateTime.UtcNow;
+            fromAccount.SavingsStartDate = now;
+            fromAccount.SavingsMaturityDate = now.AddMonths(fromAccount.SavingsTermMonths ?? 1);
+        }
 
         // Ghi Có tài khoản nhận (nếu chuyển nội bộ).
         if (toAccount is not null)
@@ -120,7 +160,8 @@ public class TransactionCommand :
             Fee = fee,
             Description = request.Description,
             Status = TransactionStatus.Success,
-            Type = request.Type
+            Type = request.Type,
+            Category = request.Category
         };
 
         await _transactionRepository.AddAsync(transaction, ct);
@@ -162,5 +203,6 @@ public class TransactionCommand :
         t.Description,
         t.Status,
         t.Type,
+        t.Category,
         t.CreatedDate);
 }

@@ -36,4 +36,7 @@ public class Transaction : BaseEntity
     public TransactionStatus Status { get; set; } = TransactionStatus.Pending;
 
     public TransactionType Type { get; set; } = TransactionType.InternalTransfer;
+
+    /// <summary>Danh mục thu chi do người dùng chọn (phục vụ PFM).</summary>
+    public TransactionCategory Category { get; set; } = TransactionCategory.Other;
 }

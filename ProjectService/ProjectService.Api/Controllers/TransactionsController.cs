@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProjectService.Application.Services.Commands;
 using ProjectService.Application.Services.DTOs;
@@ -6,6 +7,7 @@ using ProjectService.Application.Services.DTOs;
 namespace ProjectService.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 public class TransactionsController : ControllerBase
 {
@@ -28,7 +30,9 @@ public class TransactionsController : ControllerBase
                 request.ToAccountId,
                 request.ReceiverAccount,
                 request.ReceiverName,
-                request.ReceiverBankCode),
+                request.ReceiverBankCode,
+                request.Category,
+                request.IsEarlyWithdrawal),
             ct));
 
     [HttpPost("{id}/cancel")]

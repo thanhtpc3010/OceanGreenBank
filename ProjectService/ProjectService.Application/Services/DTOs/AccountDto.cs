@@ -1,3 +1,5 @@
+using ProjectService.Domain.Enum;
+
 namespace ProjectService.Application.Services.DTOs;
 
 /// <summary>
@@ -10,4 +12,9 @@ public sealed record AccountDto(
     decimal Balance,
     string Currency,
     bool IsActive,
+    AccountType Type,
+    int? SavingsTermMonths,
+    decimal? InterestRate,
+    DateTime? SavingsStartDate,
+    DateTime? SavingsMaturityDate,
     DateTime CreatedDate);

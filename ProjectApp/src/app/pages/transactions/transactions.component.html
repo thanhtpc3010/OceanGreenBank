@@ -1,0 +1,112 @@
+<div class="mx-auto max-w-6xl space-y-5 p-3 lg:p-5">
+  <!-- Header -->
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Lịch sử giao dịch</h1>
+      <p class="text-sm text-slate-500">Toàn bộ giao dịch của các tài khoản của bạn</p>
+    </div>
+    <a
+      routerLink="/dashboard"
+      class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+      </svg>
+      Quay lại Dashboard
+    </a>
+  </div>
+
+  @if (error()) {
+    <div class="flex items-center gap-2 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{{ error() }}</div>
+  }
+
+  <!-- Bộ lọc + tóm tắt -->
+  <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="flex flex-wrap items-center gap-2">
+      <select
+        [(ngModel)]="selectedAccountId"
+        name="accountFilter"
+        (change)="onAccountChange()"
+        class="h-10 w-64 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+      >
+        <option value="all">Tất cả tài khoản</option>
+        @for (acc of accounts(); track acc.id) {
+          <option [value]="acc.id" [disabled]="!acc.isActive">
+            {{ acc.accountNumber }} — {{ acc.balance | number : '1.0-0' }} VND{{ acc.isActive ? '' : ' (đã đóng)' }}
+          </option>
+        }
+      </select>
+      <input
+        type="text"
+        [(ngModel)]="search"
+        name="search"
+        placeholder="Tìm theo nội dung / danh mục / người nhận..."
+        class="h-10 w-72 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+      />
+    </div>
+    <div class="flex items-center gap-4 text-sm">
+      <span class="text-slate-500">Tổng thu: <b class="text-emerald-600">{{ totalIn() | number : '1.0-0' }}</b></span>
+      <span class="text-slate-500">Tổng chi: <b class="text-rose-600">{{ totalOut() | number : '1.0-0' }}</b></span>
+    </div>
+  </div>
+
+  <!-- Bảng giao dịch -->
+  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    @if (loading()) {
+      <p class="py-10 text-center text-sm text-slate-400">Đang tải giao dịch...</p>
+    } @else {
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[760px] text-left text-sm">
+          <thead>
+            <tr class="border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-400">
+              <th class="py-2 pr-3 font-semibold">Thời gian</th>
+              <th class="py-2 pr-3 font-semibold">Mã GD</th>
+              <th class="py-2 pr-3 font-semibold">Nội dung</th>
+              <th class="py-2 pr-3 font-semibold">Tài khoản nguồn</th>
+              <th class="py-2 pr-3 font-semibold">Người nhận</th>
+              <th class="py-2 pr-3 font-semibold">Loại</th>
+              <th class="py-2 pr-3 font-semibold">Danh mục</th>
+              <th class="py-2 pr-3 text-right font-semibold">Số tiền</th>
+              <th class="py-2 font-semibold">Trạng thái</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (tx of filteredRows(); track tx.id) {
+              <tr class="transition hover:bg-slate-50">
+                <td class="whitespace-nowrap py-3 pr-3 text-slate-600">{{ tx.createdDate | date : 'dd/MM/yyyy HH:mm' }}</td>
+                <td class="whitespace-nowrap py-3 pr-3 font-mono text-xs text-slate-400">{{ tx.transactionCode }}</td>
+                <td class="py-3 pr-3 font-medium text-slate-700">{{ tx.description }}</td>
+                <td class="whitespace-nowrap py-3 pr-3 font-mono text-slate-600">{{ tx.accountNumber || '—' }}</td>
+                <td class="py-3 pr-3 text-slate-600">{{ tx.receiverName || '—' }}</td>
+                <td class="py-3 pr-3 text-slate-600">{{ typeLabel(tx.type) }}</td>
+                <td class="py-3 pr-3">
+                  <span class="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-700">{{ tx.categoryName }}</span>
+                </td>
+                <td class="whitespace-nowrap py-3 pr-3 text-right font-bold" [class.text-emerald-600]="tx.amount > 0" [class.text-rose-600]="tx.amount < 0">
+                  {{ tx.amount > 0 ? '+' : '' }}{{ tx.amount | number : '1.0-0' }} VND
+                </td>
+                <td class="whitespace-nowrap py-3 text-right">
+                  <span
+                    class="rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                    [class.bg-emerald-100]="tx.status === 2"
+                    [class.text-emerald-700]="tx.status === 2"
+                    [class.bg-amber-100]="tx.status === 1"
+                    [class.text-amber-700]="tx.status === 1"
+                    [class.bg-rose-100]="tx.status === 3"
+                    [class.text-rose-700]="tx.status === 3"
+                  >
+                    {{ statusLabel(tx.status) }}
+                  </span>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="9" class="py-10 text-center text-sm text-slate-400">Chưa có giao dịch nào.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</div>

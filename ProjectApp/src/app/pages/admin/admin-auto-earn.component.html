@@ -1,0 +1,214 @@
+<div class="mx-auto max-w-6xl space-y-5 p-3 lg:p-5">
+  <!-- Header -->
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-xl font-bold text-slate-800">Quản lý AutoEarn</h1>
+      <p class="text-sm text-slate-500">Cấu hình tính năng sinh lời tự động chạy trên server</p>
+    </div>
+    <a
+      routerLink="/dashboard"
+      class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+      </svg>
+      Quay lại Dashboard
+    </a>
+  </div>
+
+  @if (error()) {
+    <div class="flex items-center gap-2 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{{ error() }}</div>
+  }
+  @if (success()) {
+    <div class="flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{{ success() }}</div>
+  }
+
+  @if (loading()) {
+    <p class="py-10 text-center text-sm text-slate-400">Đang tải cấu hình...</p>
+  } @else {
+    <!-- ============ CẤU HÌNH ============ -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-bold text-slate-800">Cấu hình sinh lời tự động</h2>
+        <span
+          class="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold"
+          [class.bg-emerald-100]="isActive()"
+          [class.text-emerald-700]="isActive()"
+          [class.bg-slate-100]="!isActive()"
+          [class.text-slate-500]="!isActive()"
+        >
+          <span
+            class="h-1.5 w-1.5 rounded-full"
+            [class.bg-emerald-500]="isActive()"
+            [class.bg-slate-400]="!isActive()"
+          ></span>
+          {{ isActive() ? 'ĐANG BẬT' : 'TẮT' }}
+        </span>
+      </div>
+
+      <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <!-- Bật/tắt -->
+        <div class="flex flex-col justify-between rounded-xl border border-slate-100 bg-slate-50 p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Trạng thái</p>
+          <label class="mt-3 flex cursor-pointer items-center justify-between">
+            <span class="text-sm font-semibold text-slate-700">{{ isActive() ? 'Bật' : 'Tắt' }}</span>
+            <input type="checkbox" [(ngModel)]="isActive" name="isActive" class="h-5 w-5 rounded accent-emerald-600" />
+          </label>
+        </div>
+
+        <!-- Lãi suất -->
+        <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+          <label for="rate" class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Lãi suất (%/năm)</label>
+          <input
+            id="rate"
+            type="number"
+            [(ngModel)]="interestRate"
+            name="interestRate"
+            step="0.1"
+            min="0"
+            max="20"
+            class="mt-3 h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+          />
+        </div>
+
+        <!-- Thời gian chạy -->
+        <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+          <label for="runTime" class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Giờ tự động chạy (giờ VN)</label>
+          <input
+            id="runTime"
+            type="time"
+            [(ngModel)]="runTime"
+            name="runTime"
+            class="mt-3 h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
+          />
+          <p class="mt-1 text-[11px] text-slate-400">Chạy 1 lần/ngày, lãi tính theo ngày</p>
+        </div>
+
+        <!-- Lần chạy -->
+        <div class="rounded-xl border border-slate-100 bg-slate-50 p-4 text-sm">
+          <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Lịch chạy</p>
+          <p class="mt-3 text-slate-600"><span class="text-slate-400">Gần nhất:</span> <b>{{ formatDateTime(lastRunAt()) }}</b></p>
+          <p class="mt-1 text-slate-600"><span class="text-slate-400">Kế tiếp:</span> <b>{{ formatDateTime(nextRunAt()) }}</b></p>
+        </div>
+      </div>
+
+      <div class="mt-5 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          (click)="saveSettings()"
+          [disabled]="saving()"
+          class="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
+        >
+          {{ saving() ? 'Đang lưu...' : 'Lưu cấu hình' }}
+        </button>
+        <button
+          type="button"
+          (click)="runNow()"
+          [disabled]="running()"
+          class="rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-slate-600 ring-1 ring-slate-200 transition hover:bg-slate-50 disabled:opacity-50"
+        >
+          {{ running() ? 'Đang chạy...' : '⚡ Chạy ngay (test)' }}
+        </button>
+      </div>
+    </section>
+
+    <!-- ============ TÀI KHOẢN THAM GIA ============ -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h2 class="text-base font-bold text-slate-800">Tài khoản tham gia</h2>
+      <p class="text-xs text-slate-500">Bật/đăng ký tài khoản để được cộng lãi mỗi ngày theo số tiền gốc.</p>
+
+      <div class="mt-4 overflow-x-auto">
+        <table class="w-full min-w-[640px] text-left text-sm">
+          <thead>
+            <tr class="border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-400">
+              <th class="py-2 pr-3 font-semibold">Chủ tài khoản</th>
+              <th class="py-2 pr-3 font-semibold">Số tài khoản</th>
+              <th class="py-2 pr-3 font-semibold">Số dư</th>
+              <th class="py-2 pr-3 font-semibold">Tham gia</th>
+              <th class="py-2 pr-3 font-semibold">Tiền gốc (VND)</th>
+              <th class="py-2 font-semibold"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (acc of accounts(); track acc.accountId) {
+              <tr>
+                <td class="py-3 pr-3 font-semibold text-slate-800">{{ acc.ownerName }}</td>
+                <td class="py-3 pr-3 font-mono text-slate-600">{{ acc.accountNumber }}</td>
+                <td class="py-3 pr-3 text-slate-600">{{ acc.balance | number : '1.0-0' }}</td>
+                <td class="py-3 pr-3">
+                  <input
+                    type="checkbox"
+                    [checked]="acc.isEnrolled"
+                    (change)="toggleAccount(acc, $any($event.target).checked)"
+                    class="h-4 w-4 rounded accent-emerald-600"
+                  />
+                </td>
+                <td class="py-3 pr-3">
+                  <input
+                    type="number"
+                    [(ngModel)]="acc.principal"
+                    name="principal-{{ acc.accountId }}"
+                    [disabled]="!acc.isEnrolled"
+                    min="0"
+                    class="h-9 w-32 rounded-lg border border-slate-200 bg-slate-50 px-2 text-sm outline-none transition focus:border-emerald-400 disabled:opacity-40"
+                  />
+                </td>
+                <td class="py-3 text-right">
+                  <button
+                    type="button"
+                    (click)="savePrincipal(acc)"
+                    [disabled]="!acc.isEnrolled"
+                    class="rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200 transition hover:bg-slate-50 disabled:opacity-40"
+                  >
+                    Lưu gốc
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="py-8 text-center text-sm text-slate-400">Chưa có tài khoản nào.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ NHẬT KÝ ============ -->
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h2 class="text-base font-bold text-slate-800">Nhật ký sinh lời</h2>
+      <p class="text-xs text-slate-500">Lịch sử các lần tự động cộng lãi.</p>
+
+      <div class="mt-4 overflow-x-auto">
+        <table class="w-full min-w-[560px] text-left text-sm">
+          <thead>
+            <tr class="border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-400">
+              <th class="py-2 pr-3 font-semibold">Ngày</th>
+              <th class="py-2 pr-3 font-semibold">Số tài khoản</th>
+              <th class="py-2 pr-3 font-semibold">Tiền gốc</th>
+              <th class="py-2 pr-3 font-semibold">Lãi suất</th>
+              <th class="py-2 font-semibold">Số lãi cộng</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (log of logs(); track log.id) {
+              <tr>
+                <td class="py-3 pr-3 text-slate-600">{{ formatDateTime(log.runDate) }}</td>
+                <td class="py-3 pr-3 font-mono text-slate-600">{{ log.accountNumber }}</td>
+                <td class="py-3 pr-3 text-slate-600">{{ log.principal | number : '1.0-0' }}</td>
+                <td class="py-3 pr-3 text-slate-600">{{ log.annualRate }}%/năm</td>
+                <td class="py-3 font-bold text-emerald-600">+{{ log.interestAmount | number : '1.0-0' }} VND</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="py-8 text-center text-sm text-slate-400">
+                  Chưa có lần chạy nào. Bấm "⚡ Chạy ngay" để thử.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+</div>

@@ -14,7 +14,11 @@ public class ApplicationReadDbContext(DbContextOptions<ApplicationReadDbContext>
     public DbSet<Bank> Banks { get; set; }
     public DbSet<Site> Sites { get; set; }
     public DbSet<Account> Accounts { get; set; }
+    public DbSet<SavingsPlan> SavingsPlans { get; set; }
     public DbSet<Transaction> Transactions { get; set; }
+    public DbSet<AutoEarnSetting> AutoEarnSettings { get; set; }
+    public DbSet<AutoEarnLog> AutoEarnLogs { get; set; }
+    public DbSet<KnowledgeEntry> KnowledgeEntries { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
