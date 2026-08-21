@@ -8,18 +8,16 @@
       </p>
     </div>
     <div class="flex gap-2">
-      <button
-        type="button"
-        class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50"
-      >
-        + Nạp tiền
-      </button>
-      <button
-        type="button"
-        class="rounded-xl bg-gradient-to-r from-brand-600 to-ocean-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
-      >
-        Chuyển tiền
-      </button>
+      <p-button
+        label="+ Nạp tiền"
+        [text]="true"
+        severity="secondary"
+        styleClass="!rounded-xl !px-4 !py-2 !text-sm !font-semibold !text-slate-600 !shadow-sm ring-1 !ring-slate-200"
+      />
+      <p-button
+        label="Chuyển tiền"
+        styleClass="!rounded-xl !px-4 !py-2 !text-sm !font-semibold !bg-gradient-to-r !from-brand-600 !to-ocean-600 !text-white !shadow-sm"
+      />
     </div>
   </div>
 
@@ -48,185 +46,160 @@
         <p class="text-2xl font-extrabold">{{ balance() | number : '1.0-0' }} <span class="text-base font-bold text-ocean-100">VND</span></p>
 
         <div class="mt-6 grid grid-cols-2 gap-3">
-          <button type="button" class="rounded-xl bg-white/15 py-2.5 text-sm font-semibold backdrop-blur transition hover:bg-white/25">
-            Chuyển tiền
-          </button>
-          <button type="button" class="rounded-xl bg-white/15 py-2.5 text-sm font-semibold backdrop-blur transition hover:bg-white/25">
-            Sao kê
-          </button>
+          <p-button
+            label="Chuyển tiền"
+            styleClass="!border-0 !bg-white/15 !py-2.5 !text-sm !font-semibold !text-white !backdrop-blur hover:!bg-white/25"
+          />
+          <p-button
+            label="Sao kê"
+            styleClass="!border-0 !bg-white/15 !py-2.5 !text-sm !font-semibold !text-white !backdrop-blur hover:!bg-white/25"
+          />
         </div>
       </div>
     </section>
 
     <!-- AutoEarn -->
-    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div class="flex items-center justify-between">
-        <p class="text-sm font-semibold text-slate-700">Sinh lời tự động (AutoEarn)</p>
-        <span
-          class="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold"
-          [class.bg-brand-100]="autoEarnActive()"
-          [class.text-brand-700]="autoEarnActive()"
-        >
-          <span class="h-1.5 w-1.5 rounded-full bg-brand-500"></span>
-          {{ autoEarnActive() ? 'ĐANG BẮT' : 'TẮT' }}
-        </span>
-      </div>
+    <p-card styleClass="!rounded-2xl !border-slate-200 !shadow-sm">
+      <ng-template pTemplate="header">
+        <div class="flex items-center justify-between px-5 pt-5">
+          <p class="text-sm font-semibold text-slate-700">Sinh lời tự động (AutoEarn)</p>
+          <p-tag
+            [value]="autoEarnActive() ? 'ĐANG BẬT' : 'TẮT'"
+            [severity]="autoEarnActive() ? 'success' : 'secondary'"
+          />
+        </div>
+      </ng-template>
+      <ng-template pTemplate="content">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="rounded-xl bg-gradient-to-br from-brand-50 to-ocean-50 p-4">
+            <p class="text-[11px] font-medium text-slate-500">Lãi suất / năm</p>
+            <p class="mt-1 text-2xl font-extrabold text-brand-600">{{ interestRate() }}%</p>
+          </div>
+          <div class="rounded-xl bg-gradient-to-br from-brand-50 to-ocean-50 p-4">
+            <p class="text-[11px] font-medium text-slate-500">Tích lũy tháng này</p>
+            <p class="mt-1 text-2xl font-extrabold text-ocean-600">+{{ monthlyAccum() | number : '1.0-0' }} VND</p>
+          </div>
+        </div>
 
-      <div class="mt-5 grid grid-cols-2 gap-4">
-        <div class="rounded-xl bg-gradient-to-br from-brand-50 to-ocean-50 p-4">
-          <p class="text-[11px] font-medium text-slate-500">Lãi suất / năm</p>
-          <p class="mt-1 text-2xl font-extrabold text-brand-600">{{ interestRate() }}%</p>
+        <div class="mt-5 rounded-xl border border-slate-100 bg-slate-50 p-4">
+          <div class="flex items-center justify-between text-xs text-slate-500">
+            <span>Ngày tự động trích</span>
+            <span class="font-semibold text-slate-700">Hằng ngày (00:00)</span>
+          </div>
+          <div class="mt-3 flex items-center justify-between text-xs text-slate-500">
+            <span>Tiền gốc tham gia</span>
+            <span class="font-semibold text-slate-700">10,000,000 VND</span>
+          </div>
         </div>
-        <div class="rounded-xl bg-gradient-to-br from-brand-50 to-ocean-50 p-4">
-          <p class="text-[11px] font-medium text-slate-500">Tích lũy tháng này</p>
-          <p class="mt-1 text-2xl font-extrabold text-ocean-600">+{{ monthlyAccum() | number : '1.0-0' }} VND</p>
-        </div>
-      </div>
 
-      <div class="mt-5 rounded-xl border border-slate-100 bg-slate-50 p-4">
-        <div class="flex items-center justify-between text-xs text-slate-500">
-          <span>Ngày tự động trích</span>
-          <span class="font-semibold text-slate-700">Hằng ngày (00:00)</span>
-        </div>
-        <div class="mt-3 flex items-center justify-between text-xs text-slate-500">
-          <span>Tiền gốc tham gia</span>
-          <span class="font-semibold text-slate-700">10,000,000 VND</span>
-        </div>
-      </div>
-
-      <button
-        type="button"
-        class="mt-5 w-full rounded-xl bg-gradient-to-r from-brand-600 to-ocean-600 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-      >
-        Quản lý AutoEarn
-      </button>
-    </section>
+        <p-button
+          label="Quản lý AutoEarn"
+          styleClass="!mt-5 !w-full !bg-gradient-to-r !from-brand-600 !to-ocean-600 !text-white !font-semibold"
+        />
+      </ng-template>
+    </p-card>
   </div>
 
   <!-- PFM Charts -->
-  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-    <div class="flex items-center justify-between">
-      <div>
-        <h2 class="text-base font-bold text-slate-800">AI PFM - Thống kê thu chi tháng này</h2>
-        <p class="text-xs text-slate-500">Phân tích tự động bởi AI PFM Bot</p>
-      </div>
-      <span class="rounded-full bg-ocean-50 px-3 py-1 text-xs font-semibold text-ocean-700">Tháng 8/2026</span>
-    </div>
-
-    <div class="mt-6 grid gap-8 lg:grid-cols-2">
-      <!-- Donut: Chi tiêu -->
-      <div>
-        <p class="text-sm font-semibold text-slate-700">Cơ cấu chi tiêu</p>
-        <div class="mt-4 flex flex-col items-center gap-4 sm:flex-row">
-          <div class="relative">
-            <svg viewBox="0 0 42 42" class="h-36 w-36 -rotate-90">
-              <circle cx="21" cy="21" r="15.9" fill="none" stroke-width="5" class="stroke-slate-100"></circle>
-              @for (seg of donutSegments; track seg.label; let i = $index) {
-                <circle
-                  cx="21"
-                  cy="21"
-                  r="15.9"
-                  fill="none"
-                  stroke-width="5"
-                  stroke-linecap="round"
-                  [attr.stroke]="seg.color"
-                  [attr.stroke-dasharray]="segDash(seg)"
-                  [attr.stroke-dashoffset]="segOffset(i)"
-                ></circle>
-              }
-            </svg>
-            <div class="absolute inset-0 flex flex-col items-center justify-center">
-              <p class="text-[11px] text-slate-400">Tổng chi</p>
-              <p class="text-lg font-extrabold text-slate-800">{{ format(donutTotal) }}</p>
-              <p class="text-[11px] text-slate-400">VND</p>
-            </div>
-          </div>
-
-          <ul class="w-full space-y-2.5">
-            @for (seg of donutSegments; track seg.label) {
-              <li class="flex items-center gap-2 text-sm">
-                <span class="h-3 w-3 rounded-sm" [style.background]="seg.color"></span>
-                <span class="flex-1 text-slate-600">{{ seg.label }}</span>
-                <span class="font-semibold text-slate-800">{{ format(seg.value) }}</span>
-                <span class="w-12 text-right text-xs text-slate-400">
-                  {{ (seg.value / donutTotal) * 100 | number : '1.0-0' }}%
-                </span>
-              </li>
-            }
-          </ul>
+  <p-card styleClass="!rounded-2xl !border-slate-200 !shadow-sm">
+    <ng-template pTemplate="header">
+      <div class="flex items-center justify-between px-5 pt-5">
+        <div>
+          <h2 class="text-base font-bold text-slate-800">AI PFM - Thống kê thu chi tháng này</h2>
+          <p class="text-xs text-slate-500">Phân tích tự động bởi AI PFM Bot</p>
         </div>
+        <p-tag value="Tháng 8/2026" severity="info" />
       </div>
-
-      <!-- Bar: Cashflow -->
-      <div>
-        <div class="flex items-center justify-between">
-          <p class="text-sm font-semibold text-slate-700">Dòng tiền 6 tháng</p>
-          <div class="flex items-center gap-4 text-xs text-slate-500">
-            <span class="flex items-center gap-1.5">
-              <span class="h-2.5 w-2.5 rounded-sm bg-brand-500"></span> Thu
-            </span>
-            <span class="flex items-center gap-1.5">
-              <span class="h-2.5 w-2.5 rounded-sm bg-ocean-500"></span> Chi
-            </span>
-          </div>
-        </div>
-
-        <div class="mt-3 flex h-36 items-end gap-3">
-          @for (c of cashflow; track c.month) {
-            <div class="flex flex-1 flex-col items-center gap-1">
-              <div class="flex h-32 w-full items-end justify-center gap-1">
-                <div
-                  class="w-3 rounded-t-md bg-gradient-to-t from-brand-600 to-brand-400"
-                  [style.height.%]="barHeight(c.income)"
-                  [title]="'Thu: ' + format(c.income)"
-                ></div>
-                <div
-                  class="w-3 rounded-t-md bg-gradient-to-t from-ocean-600 to-ocean-400"
-                  [style.height.%]="barHeight(c.expense)"
-                  [title]="'Chi: ' + format(c.expense)"
-                ></div>
+    </ng-template>
+    <ng-template pTemplate="content">
+      <div class="mt-4 grid gap-8 lg:grid-cols-2">
+        <!-- Donut: Chi tiêu -->
+        <div>
+          <p class="text-sm font-semibold text-slate-700">Cơ cấu chi tiêu</p>
+          <div class="mt-4 flex flex-col items-center gap-4 sm:flex-row">
+            <div class="relative">
+              <p-chart type="doughnut" [data]="donutData" [options]="donutOptions" [height]="'160'" [width]="'160'" />
+              <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                <p class="text-[11px] text-slate-400">Tổng chi</p>
+                <p class="text-lg font-extrabold text-slate-800">{{ format(donutTotal) }}</p>
+                <p class="text-[11px] text-slate-400">VND</p>
               </div>
-              <span class="text-[11px] text-slate-500">{{ c.month }}</span>
             </div>
-          }
+
+            <ul class="w-full space-y-2.5">
+              @for (seg of donutSegments; track seg.label) {
+                <li class="flex items-center gap-2 text-sm">
+                  <span class="h-3 w-3 rounded-sm" [style.background]="seg.color"></span>
+                  <span class="flex-1 text-slate-600">{{ seg.label }}</span>
+                  <span class="font-semibold text-slate-800">{{ format(seg.value) }}</span>
+                  <span class="w-12 text-right text-xs text-slate-400">
+                    {{ (seg.value / donutTotal) * 100 | number : '1.0-0' }}%
+                  </span>
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+
+        <!-- Bar: Cashflow -->
+        <div>
+          <div class="flex items-center justify-between">
+            <p class="text-sm font-semibold text-slate-700">Dòng tiền 6 tháng</p>
+            <div class="flex items-center gap-4 text-xs text-slate-500">
+              <span class="flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 rounded-sm bg-brand-500"></span> Thu
+              </span>
+              <span class="flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 rounded-sm bg-ocean-500"></span> Chi
+              </span>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <p-chart type="bar" [data]="cashflowData" [options]="cashflowOptions" [height]="'220'" />
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </ng-template>
+  </p-card>
 
   <!-- Giao dịch gần đây -->
-  <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-    <div class="flex items-center justify-between">
-      <h2 class="text-base font-bold text-slate-800">Giao dịch gần đây</h2>
-      <button type="button" class="text-sm font-semibold text-brand-600 hover:text-brand-700">Xem tất cả</button>
-    </div>
-
-    <ul class="mt-4 divide-y divide-slate-100">
-      @for (tx of recentTransactions; track $index) {
-        <li class="flex items-center gap-3 py-3">
-          <span
-            class="flex h-10 w-10 items-center justify-center rounded-full"
-            [style.background]="tx.color + '1a'"
-          >
-            @if (tx.amount > 0) {
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" [style.color]="tx.color" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6 9 12.75l4.286-4.286a11.948 11.948 0 0 1 4.306 6.43l.776 2.898m0 0 3.182-5.511m-3.182 5.51-5.511-3.181" />
-              </svg>
-            } @else {
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" [style.color]="tx.color" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6 9 12.75l4.286-4.286a11.948 11.948 0 0 1 4.306 6.43l.776 2.898m0 0 3.182-5.511m-3.182 5.51-5.511-3.181" />
-              </svg>
-            }
-          </span>
-          <div class="flex-1">
-            <p class="text-sm font-medium text-slate-700">{{ tx.desc }}</p>
-            <p class="text-xs text-slate-400">{{ tx.time }}</p>
-          </div>
-          <span class="text-sm font-bold" [style.color]="tx.color">
-            {{ tx.amount > 0 ? '+' : '' }}{{ format(tx.amount) }} VND
-          </span>
-        </li>
-      }
-    </ul>
-  </section>
+  <p-card styleClass="!rounded-2xl !border-slate-200 !shadow-sm">
+    <ng-template pTemplate="header">
+      <div class="flex items-center justify-between px-5 pt-5">
+        <h2 class="text-base font-bold text-slate-800">Giao dịch gần đây</h2>
+        <p-button label="Xem tất cả" [link]="true" styleClass="!text-sm !font-semibold !text-brand-600" />
+      </div>
+    </ng-template>
+    <ng-template pTemplate="content">
+      <p-table [value]="recentTransactions" styleClass="!border-0">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Mô tả</th>
+            <th class="!text-right">Số tiền</th>
+            <th class="!text-right">Thời gian</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-tx>
+          <tr>
+            <td>
+              <div class="flex items-center gap-3">
+                <span class="flex h-10 w-10 items-center justify-center rounded-full" [style.background]="tx.color + '1a'">
+                  <i
+                    [class]="tx.amount > 0 ? 'pi pi-arrow-up-right' : 'pi pi-arrow-down-left'"
+                    [style.color]="tx.color"
+                  ></i>
+                </span>
+                <span class="text-sm font-medium text-slate-700">{{ tx.desc }}</span>
+              </div>
+            </td>
+            <td class="!text-right text-sm !font-bold" [style.color]="tx.color">
+              {{ tx.amount > 0 ? '+' : '' }}{{ format(tx.amount) }} VND
+            </td>
+            <td class="!text-right text-xs !text-slate-400">{{ tx.time }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </ng-template>
+  </p-card>
 </div>

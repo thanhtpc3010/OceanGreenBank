@@ -2,11 +2,30 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
+import { PasswordModule } from 'primeng/password';
+import { TabsModule } from 'primeng/tabs';
+
 import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule],
+  imports: [
+    FormsModule,
+    ButtonModule,
+    CheckboxModule,
+    InputGroupModule,
+    InputGroupAddonModule,
+    InputTextModule,
+    MessageModule,
+    PasswordModule,
+    TabsModule,
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
@@ -32,8 +51,8 @@ export class LoginComponent {
     private readonly auth: AuthService,
   ) {}
 
-  protected setTab(tab: 'login' | 'register'): void {
-    this.activeTab.set(tab);
+  protected setTab(tab: unknown): void {
+    this.activeTab.set(tab === 'register' ? 'register' : 'login');
     this.error.set('');
     this.recaptcha.set(false);
   }

@@ -2,6 +2,9 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
+
 export interface NavItem {
   label: string;
   icon: string;
@@ -12,7 +15,7 @@ export interface NavItem {
 
 @Component({
   selector: 'app-sidebar',
-  imports: [RouterLink, RouterLinkActive, NgTemplateOutlet],
+  imports: [RouterLink, RouterLinkActive, NgTemplateOutlet, TagModule, ButtonModule],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
 })

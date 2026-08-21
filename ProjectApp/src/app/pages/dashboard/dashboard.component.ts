@@ -1,6 +1,12 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, signal } from '@angular/core';
 
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { ChartModule } from 'primeng/chart';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+
 interface DonutSegment {
   label: string;
   value: number;
@@ -22,7 +28,7 @@ interface RecentTx {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [DecimalPipe, DatePipe],
+  imports: [DecimalPipe, DatePipe, CardModule, ChartModule, TableModule, ButtonModule, TagModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
@@ -48,20 +54,32 @@ export class DashboardComponent {
     { label: 'Khác', value: 900_000, color: '#f43f5e' },
   ];
   protected readonly donutTotal = this.donutSegments.reduce((s, x) => s + x.value, 0);
-  private readonly circumference = 2 * Math.PI * 15.9;
 
-  protected segDash(seg: DonutSegment): string {
-    const frac = seg.value / this.donutTotal;
-    return `${(frac * this.circumference).toFixed(2)} ${this.circumference.toFixed(2)}`;
-  }
+  protected readonly donutData: any = {
+    labels: this.donutSegments.map((s) => s.label),
+    datasets: [
+      {
+        data: this.donutSegments.map((s) => s.value),
+        backgroundColor: this.donutSegments.map((s) => s.color),
+        hoverBackgroundColor: this.donutSegments.map((s) => s.color),
+        borderWidth: 2,
+        borderColor: '#ffffff',
+      },
+    ],
+  };
 
-  protected segOffset(index: number): number {
-    let acc = 0;
-    for (let i = 0; i < index; i++) {
-      acc += (this.donutSegments[i].value / this.donutTotal) * this.circumference;
-    }
-    return -acc;
-  }
+  protected readonly donutOptions: any = {
+    cutout: '72%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context: { label?: string; parsed?: number }) =>
+            `${context.label ?? ''}: ${new Intl.NumberFormat('vi-VN').format(context.parsed ?? 0)} VND`,
+        },
+      },
+    },
+  };
 
   // ===== Bar chart: cashflow 6 tháng =====
   protected readonly cashflow: CashflowItem[] = [
@@ -72,11 +90,49 @@ export class DashboardComponent {
     { month: 'T7', income: 19_000_000, expense: 11_200_000 },
     { month: 'T8', income: 16_800_000, expense: 10_900_000 },
   ];
-  protected readonly maxFlow = Math.max(...this.cashflow.flatMap((c) => [c.income, c.expense]));
 
-  protected barHeight(value: number): number {
-    return Math.round((value / this.maxFlow) * 100);
-  }
+  protected readonly cashflowData: any = {
+    labels: this.cashflow.map((c) => c.month),
+    datasets: [
+      {
+        label: 'Thu',
+        data: this.cashflow.map((c) => c.income),
+        backgroundColor: '#10b981',
+        borderRadius: 4,
+      },
+      {
+        label: 'Chi',
+        data: this.cashflow.map((c) => c.expense),
+        backgroundColor: '#0ea5e9',
+        borderRadius: 4,
+      },
+    ],
+  };
+
+  protected readonly cashflowOptions: any = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: { grid: { display: false } },
+      y: {
+        beginAtZero: true,
+        grid: { color: 'rgba(148,163,184,0.15)' },
+        ticks: {
+          callback: (value: string | number) =>
+            new Intl.NumberFormat('vi-VN', { notation: 'compact' }).format(Number(value)),
+        },
+      },
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (context: { dataset?: { label?: string }; parsed?: { y?: number } }) =>
+            `${context.dataset?.label ?? ''}: ${new Intl.NumberFormat('vi-VN').format(context.parsed?.y ?? 0)} VND`,
+        },
+      },
+    },
+  };
 
   // ===== Giao dịch gần đây =====
   protected readonly recentTransactions: RecentTx[] = [
