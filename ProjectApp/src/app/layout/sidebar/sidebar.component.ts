@@ -36,6 +36,7 @@ export class SidebarComponent {
     { label: 'Dashboard', icon: 'dashboard', href: '/dashboard' },
     { label: 'Tài khoản', icon: 'account', href: '/account' },
     { label: 'Chuyển tiền', icon: 'transfer', href: '/transfer' },
+    { label: 'Nạp tiền', icon: 'deposit', href: '/deposit' },
     { label: 'Giao dịch', icon: 'history', href: '/transactions' },
     { label: 'Tiết kiệm', icon: 'savings', href: '/savings' },
     { label: 'Quản lý User', icon: 'users', href: '/admin/users', adminOnly: true },

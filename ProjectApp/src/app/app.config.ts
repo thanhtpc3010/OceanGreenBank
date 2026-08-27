@@ -14,8 +14,6 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideHttpClient(withInterceptorsFromDi()),
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-    provideRouter(routes)
-  ]
     provideRouter(routes),
     provideAnimationsAsync(),
     providePrimeNG({

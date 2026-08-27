@@ -1,7 +1,6 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, EventEmitter, Output, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { Router } from '@angular/router';
 
 import { AvatarModule } from 'primeng/avatar';
 import { BadgeModule } from 'primeng/badge';
@@ -12,8 +11,7 @@ import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-header',
-  imports: [DecimalPipe, RouterLink],
-  imports: [DecimalPipe, ButtonModule, AvatarModule, BadgeModule, TooltipModule],
+  imports: [DecimalPipe, RouterLink, ButtonModule, AvatarModule, BadgeModule, TooltipModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
 })
