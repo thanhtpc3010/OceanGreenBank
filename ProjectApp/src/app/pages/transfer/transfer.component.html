@@ -316,6 +316,27 @@
         <div class="flex items-center gap-2 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{{ error() }}</div>
       }
 
+      <!-- Mật khẩu giao dịch (cấp 2) -->
+      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+        <label class="mb-1.5 block text-sm font-semibold text-slate-700">
+          Mật khẩu giao dịch (cấp 2) *
+        </label>
+        <input
+          type="password"
+          inputmode="numeric"
+          maxlength="6"
+          pattern="[0-9]*"
+          [(ngModel)]="transactionPassword"
+          name="transactionPassword"
+          placeholder="Nhập 6 chữ số"
+          autocomplete="off"
+          class="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 font-mono text-sm tracking-widest outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+        />
+        <p class="mt-1.5 text-[11px] text-slate-400">
+          Lớp xác thực thứ 2 bảo vệ giao dịch. Cài đặt tại Tài khoản → Đổi mật khẩu.
+        </p>
+      </div>
+
       <div class="flex items-center justify-end gap-2">
         <button
           type="button"

@@ -26,6 +26,10 @@ public sealed record UpdateUserCommand(
 
 public sealed record DeleteUserCommand(string UserId) : BaseCommand<Unit>;
 
+public sealed record SetTransactionPasswordCommand(
+    string UserId,
+    string TransactionPassword) : BaseCommand<UserDto>;
+
 // ============================ SERVICE INTERFACE ============================
 /// <summary>
 /// Interface của User Command Service — kế thừa ICommandService để dùng chung Create/Update/Delete.
@@ -41,7 +45,8 @@ public class UserCommand :
     IUserCommandService,
     IRequestHandler<CreateUserCommand, UserDto>,
     IRequestHandler<UpdateUserCommand, UserDto>,
-    IRequestHandler<DeleteUserCommand, Unit>
+    IRequestHandler<DeleteUserCommand, Unit>,
+    IRequestHandler<SetTransactionPasswordCommand, UserDto>
 {
     private readonly IWriteRepository<User> _userRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -64,6 +69,9 @@ public class UserCommand :
         await DeleteAsync(request, ct);
         return Unit.Value;
     }
+
+    public Task<UserDto> Handle(SetTransactionPasswordCommand request, CancellationToken ct)
+        => SetTransactionPasswordAsync(request, ct);
 
     // --- Operations ---
     public async Task<UserDto> CreateAsync(CreateUserCommand request, CancellationToken ct)
@@ -115,6 +123,25 @@ public class UserCommand :
 
         _userRepository.Remove(user);
         await _unitOfWork.SaveChangesAsync(ct);
+    }
+
+    /// <summary>Cài đặt / đổi mật khẩu giao dịch (cấp 2 — PIN 6 số).</summary>
+    public async Task<UserDto> SetTransactionPasswordAsync(SetTransactionPasswordCommand request, CancellationToken ct)
+    {
+        var user = await _userRepository.GetByIdAsync(request.UserId, ct)
+            ?? throw new NotFoundException(nameof(User), request.UserId);
+
+        if (!System.Text.RegularExpressions.Regex.IsMatch(request.TransactionPassword ?? "", @"^\d{6}$"))
+            throw new DomainException("Mật khẩu giao dịch phải là 6 chữ số.");
+
+        user.TransactionPasswordHash = BCrypt.Net.BCrypt.HashPassword(request.TransactionPassword);
+        user.LastModifiedDate = DateTime.UtcNow;
+        user.LastModifiedBy = null;
+
+        _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync(ct);
+
+        return ToDto(user);
     }
 
     private static UserDto ToDto(User user) => new(

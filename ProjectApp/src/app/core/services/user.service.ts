@@ -262,6 +262,16 @@ export class UserService {
     this.auth.logout();
   }
 
+  /** Cài đặt / đổi mật khẩu giao dịch (cấp 2 — PIN 6 số) — PUT /users/{id}/transaction-password. */
+  async setTransactionPassword(transactionPassword: string): Promise<void> {
+    const profile = await this.getProfile();
+    await firstValueFrom(
+      this.http.put(`${this.apiUrl}/users/${profile.id}/transaction-password`, {
+        transactionPassword,
+      }),
+    );
+  }
+
   /* ================= ADMIN: QUẢN LÝ USER ================= */
 
   /** Danh sách tất cả user — GET /api/users. */

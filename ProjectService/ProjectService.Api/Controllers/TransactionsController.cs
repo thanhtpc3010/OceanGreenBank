@@ -32,7 +32,8 @@ public class TransactionsController : ControllerBase
                 request.ReceiverName,
                 request.ReceiverBankCode,
                 request.Category,
-                request.IsEarlyWithdrawal),
+                request.IsEarlyWithdrawal,
+                request.TransactionPassword),
             ct));
 
     [HttpPost("{id}/cancel")]

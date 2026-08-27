@@ -55,4 +55,38 @@ export class PasswordAccountComponent {
       this.saving.set(false);
     }
   }
+
+  /* ================= MẬT KHẨU GIAO DỊCH (CẤP 2) ================= */
+  protected readonly tpSaving = signal(false);
+  protected readonly tpError = signal('');
+  protected readonly tpSuccess = signal('');
+  protected readonly tpNext = signal('');
+  protected readonly tpConfirm = signal('');
+
+  protected async saveTransactionPassword(): Promise<void> {
+    this.tpError.set('');
+    this.tpSuccess.set('');
+
+    if (!/^\d{6}$/.test(this.tpNext())) {
+      this.tpError.set('Mật khẩu giao dịch phải là 6 chữ số.');
+      return;
+    }
+    if (this.tpNext() !== this.tpConfirm()) {
+      this.tpError.set('Mật khẩu xác nhận không khớp.');
+      return;
+    }
+
+    this.tpSaving.set(true);
+    try {
+      await this.userService.setTransactionPassword(this.tpNext());
+      this.tpSuccess.set('Đã cài đặt mật khẩu giao dịch thành công!');
+      this.tpNext.set('');
+      this.tpConfirm.set('');
+    } catch (e) {
+      const body = (e as { error?: { message?: string } })?.error;
+      this.tpError.set(body?.message ?? (e instanceof Error ? e.message : 'Có lỗi xảy ra.'));
+    } finally {
+      this.tpSaving.set(false);
+    }
+  }
 }

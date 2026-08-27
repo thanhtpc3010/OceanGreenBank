@@ -33,6 +33,7 @@ export class TransferComponent implements OnInit {
   protected readonly category = signal<TxCategory>(TxCategory.Other);
   protected readonly categoryOptions = CATEGORY_OPTIONS;
   protected readonly isEarlyWithdrawal = signal(false);
+  protected readonly transactionPassword = signal('');
 
   /* ---- Trạng thái tra cứu người nhận ---- */
   protected readonly resolved = signal<ReceiverInfo | null>(null);
@@ -182,6 +183,7 @@ export class TransferComponent implements OnInit {
         receiverName: isInternal ? (this.resolved()?.ownerName ?? undefined) : this.receiverName().trim(),
         receiverBankCode: isInternal ? undefined : this.receiverBankCode().trim(),
         isEarlyWithdrawal: this.isEarlyWithdrawal(),
+        transactionPassword: this.transactionPassword(),
       });
       this.result.set(tx);
       this.step.set('result');
@@ -210,6 +212,7 @@ export class TransferComponent implements OnInit {
     this.description.set('');
     this.category.set(TxCategory.Other);
     this.isEarlyWithdrawal.set(false);
+    this.transactionPassword.set('');
   }
 
   /** Tải lịch sử giao dịch của tài khoản. */

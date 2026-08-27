@@ -21,6 +21,9 @@ public class User : BaseEntity
     /// <summary>Mật khẩu đã băm — KHÔNG bao giờ lưu mật khẩu thô.</summary>
     public required string PasswordHash { get; set; }
 
+    /// <summary>Mật khẩu giao dịch (cấp 2 — PIN 6 số) đã băm; null nếu chưa cài đặt.</summary>
+    public string? TransactionPasswordHash { get; set; }
+
     public string? Address { get; set; }
 
     public bool IsActive { get; set; } = true;
