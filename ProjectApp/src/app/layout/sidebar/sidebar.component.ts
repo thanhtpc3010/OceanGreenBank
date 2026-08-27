@@ -4,6 +4,9 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { AuthService } from '../../core/auth/auth.service';
 
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
+
 export interface NavItem {
   label: string;
   icon: string;
@@ -16,7 +19,7 @@ export interface NavItem {
 
 @Component({
   selector: 'app-sidebar',
-  imports: [RouterLink, RouterLinkActive, NgTemplateOutlet],
+  imports: [RouterLink, RouterLinkActive, NgTemplateOutlet, TagModule, ButtonModule],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
 })

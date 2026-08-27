@@ -3,6 +3,10 @@ import { FormsModule } from '@angular/forms';
 
 import { ChatService, ChatHistoryItem } from '../../core/services/chat.service';
 
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { ScrollPanelModule } from 'primeng/scrollpanel';
+
 interface ChatMessage {
   from: 'bot' | 'user';
   text: string;
@@ -10,7 +14,7 @@ interface ChatMessage {
 
 @Component({
   selector: 'app-floating-ai',
-  imports: [FormsModule],
+  imports: [FormsModule, ButtonModule, InputTextModule, ScrollPanelModule],
   templateUrl: './floating-ai.component.html',
   styleUrl: './floating-ai.component.scss',
 })
