@@ -19,7 +19,8 @@ public sealed record CreateTransactionCommand(
     string? ReceiverName,
     string? ReceiverBankCode,
     TransactionCategory Category = TransactionCategory.Other,
-    bool IsEarlyWithdrawal = false) : BaseCommand<TransactionDto>;
+    bool IsEarlyWithdrawal = false,
+    string? TransactionPassword = null) : BaseCommand<TransactionDto>;
 
 public sealed record CancelTransactionCommand(string TransactionId) : BaseCommand<Unit>;
 
@@ -84,6 +85,15 @@ public class TransactionCommand :
         var owner = await _userRepository.GetByIdAsync(fromAccount.UserId, ct);
         if (owner is not null && !owner.IsActive)
             throw new DomainException("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.");
+
+        // ===== MẬT KHẨU GIAO DỊCH (CẤP 2) =====
+        if (string.IsNullOrWhiteSpace(owner?.TransactionPasswordHash))
+            throw new DomainException(
+                "Bạn chưa cài đặt mật khẩu giao dịch. Vào Tài khoản → Đổi mật khẩu để cài đặt trước khi chuyển tiền.");
+        if (string.IsNullOrWhiteSpace(request.TransactionPassword))
+            throw new DomainException("Vui lòng nhập mật khẩu giao dịch (cấp 2).");
+        if (!BCrypt.Net.BCrypt.Verify(request.TransactionPassword, owner!.TransactionPasswordHash!))
+            throw new DomainException("Mật khẩu giao dịch không đúng.");
 
         if (request.Amount <= 0)
             throw new DomainException("Số tiền giao dịch phải lớn hơn 0.");

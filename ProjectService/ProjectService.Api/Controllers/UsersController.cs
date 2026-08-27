@@ -59,4 +59,17 @@ public class UsersController : ControllerBase
         await _mediator.Send(new DeleteUserCommand(id), ct);
         return NoContent();
     }
+
+    /// <summary>Cài đặt / đổi mật khẩu giao dịch (cấp 2 — PIN 6 số).</summary>
+    [HttpPut("{id}/transaction-password")]
+    public async Task<ActionResult<UserDto>> SetTransactionPassword(
+        string id, [FromBody] SetTransactionPasswordRequest request, CancellationToken ct)
+        => Ok(await _mediator.Send(
+            new SetTransactionPasswordCommand(id, request.TransactionPassword), ct));
+}
+
+/// <summary>Request đặt mật khẩu giao dịch.</summary>
+public class SetTransactionPasswordRequest
+{
+    public string TransactionPassword { get; set; } = "";
 }

@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -8,7 +7,7 @@ import { KnowledgeService, KnowledgeEntry } from '../../core/services/knowledge.
 
 @Component({
   selector: 'app-admin-knowledge',
-  imports: [FormsModule, DatePipe, RouterLink],
+  imports: [FormsModule, RouterLink],
   templateUrl: './admin-knowledge.component.html',
   styleUrl: './admin-knowledge.component.scss',
 })
