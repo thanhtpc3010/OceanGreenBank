@@ -10,15 +10,15 @@
       <h1 class="mt-4 text-2xl font-extrabold text-slate-800">
         Smart<span class="text-brand-600">Bank</span>
       </h1>
-      <p class="mt-1 text-sm text-slate-500">Ngân hàng số thông minh</p>
+      <p class="mt-1 text-sm text-slate-500">{{ 'LOGIN.SUBTITLE' | translate }}</p>
     </div>
 
     <!-- Tabs + Form -->
     <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <p-tabs [value]="activeTab()" (valueChange)="setTab($event)">
         <p-tablist>
-          <p-tab value="login">Đăng nhập</p-tab>
-          <p-tab value="register">Đăng ký</p-tab>
+          <p-tab value="login">{{ 'LOGIN.TAB_LOGIN' | translate }}</p-tab>
+          <p-tab value="register">{{ 'LOGIN.TAB_REGISTER' | translate }}</p-tab>
         </p-tablist>
 
         <p-tabpanels>
@@ -26,7 +26,7 @@
           <p-tabpanel value="login">
             <div class="space-y-4 p-8">
               <div>
-                <label class="mb-1.5 block text-sm font-semibold text-slate-700">Email / SĐT</label>
+                <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'LOGIN.EMAIL' | translate }}</label>
                 <p-inputgroup>
                   <p-inputgroup-addon><i class="pi pi-envelope"></i></p-inputgroup-addon>
                   <input
@@ -40,7 +40,7 @@
               </div>
 
               <div>
-                <label class="mb-1.5 block text-sm font-semibold text-slate-700">Mật khẩu</label>
+                <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'LOGIN.PASSWORD' | translate }}</label>
                 <p-password
                   [(ngModel)]="loginPassword"
                   [feedback]="false"
@@ -52,7 +52,7 @@
                 />
               </div>
 
-              <a href="#" class="block text-sm font-medium text-brand-600 hover:text-brand-700">Quên mật khẩu?</a>
+              <a href="#" class="block text-sm font-medium text-brand-600 hover:text-brand-700">{{ 'LOGIN.FORGOT' | translate }}</a>
             </div>
           </p-tabpanel>
 
@@ -60,7 +60,7 @@
           <p-tabpanel value="register">
             <div class="space-y-4 p-8">
               <div>
-                <label class="mb-1.5 block text-sm font-semibold text-slate-700">Họ và tên</label>
+                <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'LOGIN.FULL_NAME' | translate }}</label>
                 <input
                   pInputText
                   [(ngModel)]="regFullName"
@@ -71,7 +71,7 @@
               </div>
 
               <div>
-                <label class="mb-1.5 block text-sm font-semibold text-slate-700">Email</label>
+                <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'LOGIN.EMAIL_LABEL' | translate }}</label>
                 <input
                   pInputText
                   [(ngModel)]="regEmail"
@@ -82,7 +82,7 @@
               </div>
 
               <div>
-                <label class="mb-1.5 block text-sm font-semibold text-slate-700">Số điện thoại</label>
+                <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'LOGIN.PHONE' | translate }}</label>
                 <input
                   pInputText
                   [(ngModel)]="regPhone"
@@ -94,7 +94,7 @@
 
               <div class="grid grid-cols-2 gap-3">
                 <div>
-                  <label class="mb-1.5 block text-sm font-semibold text-slate-700">Mật khẩu</label>
+                  <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'LOGIN.PASSWORD' | translate }}</label>
                   <p-password
                     [(ngModel)]="regPassword"
                     [feedback]="false"
@@ -104,7 +104,7 @@
                   />
                 </div>
                 <div>
-                  <label class="mb-1.5 block text-sm font-semibold text-slate-700">Xác nhận</label>
+                  <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'LOGIN.CONFIRM_PASSWORD' | translate }}</label>
                   <p-password
                     [(ngModel)]="regConfirmPassword"
                     [feedback]="false"
@@ -118,7 +118,7 @@
               <!-- reCAPTCHA -->
               <div class="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
                 <p-checkbox [(ngModel)]="recaptcha" [binary]="true" inputId="recaptcha" />
-                <label for="recaptcha" class="cursor-pointer select-none text-sm text-slate-600">Tôi không phải người máy</label>
+                <label for="recaptcha" class="cursor-pointer select-none text-sm text-slate-600">{{ 'LOGIN.NOT_ROBOT' | translate }}</label>
                 <div class="ml-auto flex flex-col items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24">
                     <path fill="#1c64f2" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2Zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8Z"/>
@@ -141,7 +141,7 @@
 
     <!-- Submit button -->
     <p-button
-      [label]="loading() ? (activeTab() === 'login' ? 'Đang đăng nhập...' : 'Đang đăng ký...') : (activeTab() === 'login' ? 'Đăng nhập' : 'Đăng ký')"
+      [label]="submitLabel()"
       [loading]="loading()"
       (onClick)="submit()"
       styleClass="!h-11 !w-full justify-center !bg-gradient-to-r !from-brand-600 !to-ocean-600 !text-sm !font-bold !text-white"
@@ -149,7 +149,7 @@
 
     <!-- Footer -->
     <p class="text-center text-xs text-slate-400">
-      © 2026 SmartBank. Bảo mật bởi OceanGreen.
+      {{ 'LOGIN.FOOTER' | translate }}
     </p>
   </div>
 </div>

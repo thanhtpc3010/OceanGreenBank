@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -12,6 +12,8 @@ import { PasswordModule } from 'primeng/password';
 import { TabsModule } from 'primeng/tabs';
 
 import { AuthService } from '../../core/auth/auth.service';
+import { LanguageService } from '../../core/i18n/language.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-login',
@@ -25,11 +27,14 @@ import { AuthService } from '../../core/auth/auth.service';
     MessageModule,
     PasswordModule,
     TabsModule,
+    TranslatePipe,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
+  private readonly language = inject(LanguageService);
+
   protected readonly activeTab = signal<'login' | 'register'>('login');
   protected readonly loading = signal(false);
   protected readonly error = signal('');
@@ -45,6 +50,14 @@ export class LoginComponent {
   protected readonly regPassword = signal('');
   protected readonly regConfirmPassword = signal('');
   protected readonly recaptcha = signal(false);
+
+  protected readonly submitLabel = computed(() => {
+    const isLogin = this.activeTab() === 'login';
+    if (this.loading()) {
+      return this.language.t(isLogin ? 'LOGIN.LOADING' : 'LOGIN.REGISTER_LOADING');
+    }
+    return this.language.t(isLogin ? 'LOGIN.SUBMIT' : 'LOGIN.TAB_REGISTER');
+  });
 
   constructor(private readonly router: Router, private readonly auth: AuthService) {}
 
@@ -63,7 +76,7 @@ export class LoginComponent {
     const email = this.loginEmail().trim();
     const password = this.loginPassword();
     if (!email || !password.trim()) {
-      this.error.set('Vui lòng nhập đầy đủ thông tin.');
+      this.error.set(this.language.t('LOGIN.ERR_EMPTY'));
       return;
     }
     this.loading.set(true);
@@ -83,15 +96,15 @@ export class LoginComponent {
     const fullName = this.regFullName().trim();
     const email = this.regEmail().trim();
     if (!fullName || !email || !this.regPassword().trim()) {
-      this.error.set('Vui lòng nhập đầy đủ thông tin.');
+      this.error.set(this.language.t('LOGIN.ERR_EMPTY'));
       return;
     }
     if (this.regPassword() !== this.regConfirmPassword()) {
-      this.error.set('Mật khẩu xác nhận không khớp.');
+      this.error.set(this.language.t('LOGIN.ERR_PASSWORD_MISMATCH'));
       return;
     }
     if (!this.recaptcha()) {
-      this.error.set('Vui lòng xác nhận bạn không phải người máy.');
+      this.error.set(this.language.t('LOGIN.ERR_CAPTCHA'));
       return;
     }
     this.loading.set(true);
@@ -117,6 +130,6 @@ export class LoginComponent {
   /** Lấy message từ lỗi API (vd: "Tài khoản đã bị khóa", "Email hoặc mật khẩu không đúng"). */
   private extractMessage(e: unknown): string {
     const body = (e as { error?: { message?: string } })?.error;
-    return body?.message ?? (e instanceof Error ? e.message : 'Đã có lỗi xảy ra. Vui lòng thử lại.');
+    return body?.message ?? (e instanceof Error ? e.message : this.language.t('LOGIN.ERR_GENERIC'));
   }
 }

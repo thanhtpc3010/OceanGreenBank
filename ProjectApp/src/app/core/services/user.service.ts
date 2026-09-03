@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from '../auth/auth.service';
+import { LanguageService } from '../i18n/language.service';
 
 /** Hồ sơ người dùng (frontend view model). */
 export interface UserProfile {
@@ -96,19 +97,21 @@ export class UserService {
     private readonly auth: AuthService,
   ) {}
 
+  private readonly language = inject(LanguageService);
+
   /* ================= ĐỌC ================= */
 
   /** Lấy hồ sơ người dùng từ API, tìm theo email đang đăng nhập. */
   async getProfile(): Promise<UserProfile> {
     const email = this.auth.currentUser()?.email;
     if (!email) {
-      throw new Error('Vui lòng đăng nhập trước.');
+      throw new Error(this.language.t('ERR.LOGIN_REQUIRED'));
     }
 
     const users = await firstValueFrom(this.http.get<UserDto[]>(`${this.apiUrl}/users`));
     const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
     if (!user) {
-      throw new Error('Không tìm thấy người dùng với email đã đăng nhập.');
+      throw new Error(this.language.t('ERR.USER_NOT_FOUND'));
     }
 
     const profile = this.toProfile(user);
@@ -205,7 +208,7 @@ export class UserService {
   async changePassword(current: string, next: string): Promise<void> {
     const saved = localStorage.getItem('smartbank.password') ?? 'password123';
     if (current !== saved) {
-      throw new Error('Mật khẩu hiện tại không đúng.');
+      throw new Error(this.language.t('PASSWORD.ERR_CURRENT_WRONG'));
     }
     localStorage.setItem('smartbank.password', next);
   }
@@ -353,7 +356,7 @@ export class UserService {
       id: dto.id,
       accountNumber: dto.accountNumber,
       type: dto.type,
-      typeLabel: isSavings ? 'Tiết kiệm (SAVINGS)' : 'Thanh toán (CASA)',
+      typeLabel: isSavings ? this.language.t('ACCOUNT.TYPE_SAVINGS') : this.language.t('ACCOUNT.TYPE_CASA'),
       balance: dto.balance,
       currency: dto.currency,
       isActive: dto.isActive,

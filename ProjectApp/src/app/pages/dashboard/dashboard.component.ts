@@ -4,8 +4,9 @@ import { RouterLink } from '@angular/router';
 
 import { AuthService } from '../../core/auth/auth.service';
 import { AutoEarnService } from '../../core/services/auto-earn.service';
-import { TransactionService, TxCategory, TransactionDto } from '../../core/services/transaction.service';
+import { TransactionService, TxCategory, TransactionDto, CATEGORY_KEYS } from '../../core/services/transaction.service';
 import { UserService } from '../../core/services/user.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 interface DonutSegment {
   label: string;
@@ -31,24 +32,12 @@ const CATEGORY_COLORS: Record<TxCategory, string> = {
   [TxCategory.Education]: '#6366f1',
   [TxCategory.Savings]: '#22c55e',
   [TxCategory.Transfer]: '#64748b',
-};
-
-const CATEGORY_NAMES: Record<TxCategory, string> = {
-  [TxCategory.Other]: 'Khác',
-  [TxCategory.Food]: 'Ăn uống',
-  [TxCategory.Shopping]: 'Mua sắm',
-  [TxCategory.Bills]: 'Hóa đơn',
-  [TxCategory.Transport]: 'Di chuyển',
-  [TxCategory.Entertainment]: 'Giải trí',
-  [TxCategory.Health]: 'Y tế',
-  [TxCategory.Education]: 'Giáo dục',
-  [TxCategory.Savings]: 'Tiết kiệm',
-  [TxCategory.Transfer]: 'Chuyển khoản',
+  [TxCategory.Donation]: '#ef4444',
 };
 
 @Component({
   selector: 'app-dashboard',
-  imports: [DecimalPipe, DatePipe, RouterLink],
+  imports: [DecimalPipe, DatePipe, RouterLink, TranslatePipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
@@ -85,7 +74,7 @@ export class DashboardComponent implements OnInit {
 
   // Giao dịch gần đây (thật)
   protected readonly recentTransactions = signal<
-    { desc: string; amount: number; time: string; color: string }[]
+    { categoryKey: string; description: string; amount: number; time: string; color: string }[]
   >([]);
 
   // Cashflow 6 tháng (mock hiển thị)
@@ -138,7 +127,7 @@ export class DashboardComponent implements OnInit {
       this.pfmNet.set(summary.net);
       this.donutSegments.set(
         summary.expenseByCategory.map((c) => ({
-          label: c.categoryName,
+          label: CATEGORY_KEYS[c.category] ?? 'CATEGORY.OTHER',
           value: c.total,
           color: CATEGORY_COLORS[c.category] ?? '#94a3b8',
         })),
@@ -156,7 +145,8 @@ export class DashboardComponent implements OnInit {
           .sort((a, b) => b.createdDate.localeCompare(a.createdDate))
           .slice(0, 5)
           .map((t: TransactionDto) => ({
-            desc: `${CATEGORY_NAMES[t.category] ?? 'Khác'} — ${t.description || 'Chuyển tiền'}`,
+            categoryKey: CATEGORY_KEYS[t.category] ?? 'CATEGORY.OTHER',
+            description: t.description || '',
             amount: -t.amount,
             time: new Date(t.createdDate).toLocaleString('vi-VN', {
               day: '2-digit',

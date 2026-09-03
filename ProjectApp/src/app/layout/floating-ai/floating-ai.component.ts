@@ -2,6 +2,8 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ChatService, ChatHistoryItem } from '../../core/services/chat.service';
+import { LanguageService } from '../../core/i18n/language.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -14,12 +16,13 @@ interface ChatMessage {
 
 @Component({
   selector: 'app-floating-ai',
-  imports: [FormsModule, ButtonModule, InputTextModule, ScrollPanelModule],
+  imports: [FormsModule, ButtonModule, InputTextModule, ScrollPanelModule, TranslatePipe],
   templateUrl: './floating-ai.component.html',
   styleUrl: './floating-ai.component.scss',
 })
 export class FloatingAiComponent implements OnInit {
   private readonly chat = inject(ChatService);
+  private readonly language = inject(LanguageService);
 
   protected readonly open = signal(false);
   protected readonly enabled = signal(true);
@@ -27,7 +30,7 @@ export class FloatingAiComponent implements OnInit {
   protected readonly messages = signal<ChatMessage[]>([
     {
       from: 'bot',
-      text: 'Xin chào! Mình là trợ lý SmartBank 🤖 Mình có thể hướng dẫn các chức năng của app hoặc trả lời về tài khoản của bạn.',
+      text: this.language.t('AI.GREETING'),
     },
   ]);
   protected readonly input = signal('');
@@ -70,7 +73,7 @@ export class FloatingAiComponent implements OnInit {
         ...m,
         {
           from: 'bot',
-          text: body?.message ?? 'Có lỗi khi kết nối AI. Vui lòng thử lại sau.',
+          text: body?.message ?? this.language.t('AI.ERR_DEFAULT'),
         },
       ]);
     } finally {

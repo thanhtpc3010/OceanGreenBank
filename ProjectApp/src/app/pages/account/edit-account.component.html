@@ -2,8 +2,8 @@
   <!-- Page header -->
   <div class="flex flex-wrap items-center justify-between gap-3">
     <div>
-      <h1 class="text-xl font-bold text-slate-800">Đổi thông tin cá nhân</h1>
-      <p class="text-sm text-slate-500">Cập nhật thông tin hồ sơ của bạn</p>
+      <h1 class="text-xl font-bold text-slate-800">{{ 'EDIT.TITLE' | translate }}</h1>
+      <p class="text-sm text-slate-500">{{ 'EDIT.SUBTITLE' | translate }}</p>
     </div>
     <a
       routerLink="/account"
@@ -12,13 +12,13 @@
       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
       </svg>
-      Quay lại
+      {{ 'EDIT.BACK' | translate }}
     </a>
   </div>
 
   @if (loading()) {
     <div class="flex items-center justify-center rounded-2xl border border-slate-200 bg-white p-12 text-sm text-slate-400">
-      Đang tải...
+      {{ 'COMMON.LOADING' | translate }}
     </div>
   } @else {
     <form
@@ -46,7 +46,7 @@
       <!-- Phần có thể sửa -->
       <div class="grid gap-4 sm:grid-cols-2">
         <div>
-          <label class="mb-1.5 block text-sm font-semibold text-slate-700">Họ và tên *</label>
+          <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'EDIT.FULL_NAME' | translate }}</label>
           <input
             type="text"
             [(ngModel)]="fullName"
@@ -56,7 +56,7 @@
           />
         </div>
         <div>
-          <label class="mb-1.5 block text-sm font-semibold text-slate-700">Số điện thoại *</label>
+          <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'EDIT.PHONE' | translate }}</label>
           <input
             type="text"
             [(ngModel)]="phone"
@@ -66,24 +66,24 @@
           />
         </div>
         <div>
-          <label class="mb-1.5 block text-sm font-semibold text-slate-700">Giới tính</label>
+          <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'EDIT.GENDER' | translate }}</label>
           <select
             [(ngModel)]="gender"
             name="gender"
             class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
           >
-            <option value="Nam">Nam</option>
-            <option value="Nữ">Nữ</option>
-            <option value="Khác">Khác</option>
+            <option value="Nam">{{ 'EDIT.GENDER_MALE' | translate }}</option>
+            <option value="Nữ">{{ 'EDIT.GENDER_FEMALE' | translate }}</option>
+            <option value="Khác">{{ 'EDIT.GENDER_OTHER' | translate }}</option>
           </select>
         </div>
         <div class="sm:col-span-2">
-          <label class="mb-1.5 block text-sm font-semibold text-slate-700">Địa chỉ</label>
+          <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'EDIT.ADDRESS' | translate }}</label>
           <input
             type="text"
             [(ngModel)]="address"
             name="address"
-            placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"
+            [placeholder]="'EDIT.ADDRESS_PLACEHOLDER' | translate"
             class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
           />
         </div>
@@ -92,19 +92,19 @@
       <!-- Thông tin cố định -->
       <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
         <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
-          Thông tin định danh (không thể thay đổi)
+          {{ 'EDIT.IDENTITY_INFO' | translate }}
         </p>
         <div class="mt-3 grid gap-3 sm:grid-cols-3">
           <div>
-            <p class="text-[11px] text-slate-500">Email</p>
+            <p class="text-[11px] text-slate-500">{{ 'ACCOUNT.EMAIL' | translate }}</p>
             <p class="text-sm font-semibold text-slate-700">{{ email() }}</p>
           </div>
           <div>
-            <p class="text-[11px] text-slate-500">Số CCCD/CMND</p>
+            <p class="text-[11px] text-slate-500">{{ 'ACCOUNT.ID_CARD' | translate }}</p>
             <p class="text-sm font-semibold text-slate-700">{{ identityCard() }}</p>
           </div>
           <div>
-            <p class="text-[11px] text-slate-500">Ngày sinh</p>
+            <p class="text-[11px] text-slate-500">{{ 'ACCOUNT.DOB' | translate }}</p>
             <p class="text-sm font-semibold text-slate-700">{{ dateOfBirth() }}</p>
           </div>
         </div>

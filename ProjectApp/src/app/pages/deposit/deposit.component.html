@@ -1,8 +1,8 @@
 <div class="mx-auto max-w-4xl space-y-5 p-3 lg:p-5">
   <!-- Header -->
   <div>
-    <h1 class="text-xl font-bold text-slate-800">Nạp tiền qua ví</h1>
-    <p class="text-sm text-slate-500">Nạp tiền vào tài khoản SmartBank bằng ví MoMo / ZaloPay (bản demo)</p>
+    <h1 class="text-xl font-bold text-slate-800">{{ 'DEPOSIT.TITLE' | translate }}</h1>
+    <p class="text-sm text-slate-500">{{ 'DEPOSIT.SUBTITLE' | translate }}</p>
   </div>
 
   <!-- ================= FORM ================= -->
@@ -18,7 +18,7 @@
 
     <!-- Chọn ví -->
     <div>
-      <label class="mb-1.5 block text-sm font-semibold text-slate-700">Chọn ví thanh toán</label>
+      <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'DEPOSIT.PROVIDER' | translate }}</label>
       <div class="grid grid-cols-2 gap-3">
         @for (opt of providerOptions; track opt.value) {
           <button
@@ -51,26 +51,26 @@
 
     <!-- Số tiền -->
     <div>
-      <label class="mb-1.5 block text-sm font-semibold text-slate-700">Số tiền nạp (VND) *</label>
+      <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'DEPOSIT.AMOUNT' | translate }}</label>
       <input
         type="number"
         min="10000"
         step="1000"
         [(ngModel)]="amount"
         name="amount"
-        placeholder="VD: 500000"
+        [placeholder]="'DEPOSIT.AMOUNT_PLACEHOLDER' | translate"
         class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
       />
       @if (amount()) {
         <p class="mt-1.5 text-xs text-slate-500">
-          Bạn sẽ thanh toán <b class="text-brand-600">{{ amount()! | number : '1.0-0' }} VND</b> qua ví.
+          {{ 'DEPOSIT.WILL_PAY' | translate: { amount: (amount()! | number : '1.0-0') || '0' } }}
         </p>
       }
     </div>
 
     <!-- Tài khoản nhận -->
     <div>
-      <label class="mb-1.5 block text-sm font-semibold text-slate-700">Tài khoản nhận tiền</label>
+      <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'DEPOSIT.TO_ACCOUNT' | translate }}</label>
       <select
         [(ngModel)]="accountId"
         name="toAccount"
@@ -91,7 +91,7 @@
 
     <!-- Nội dung -->
     <div>
-      <label class="mb-1.5 block text-sm font-semibold text-slate-700">Nội dung (tùy chọn)</label>
+      <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'DEPOSIT.DESCRIPTION' | translate }}</label>
       <input
         type="text"
         [(ngModel)]="description"
@@ -106,10 +106,10 @@
       [disabled]="submitting()"
       class="w-full rounded-xl bg-gradient-to-r from-brand-600 to-ocean-600 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
     >
-      {{ submitting() ? 'Đang tạo đơn...' : 'Tạo đơn thanh toán' }}
+      {{ submitting() ? ('DEPOSIT.CREATING' | translate) : ('DEPOSIT.CREATE' | translate) }}
     </button>
     <p class="text-center text-[11px] text-slate-400">
-      Bản demo: sau khi bấm nút, bạn sẽ được chuyển sang trang ví mô phỏng để xác nhận thanh toán.
+      {{ 'DEPOSIT.DEMO_NOTE' | translate }}
     </p>
   </form>
 
@@ -117,16 +117,16 @@
   <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
     <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
       <div>
-        <h2 class="text-sm font-bold text-slate-800">Lịch sử nạp tiền qua ví</h2>
-        <p class="text-xs text-slate-500">Các giao dịch MoMo / ZaloPay của bạn</p>
+        <h2 class="text-sm font-bold text-slate-800">{{ 'DEPOSIT.HISTORY' | translate }}</h2>
+        <p class="text-xs text-slate-500">{{ 'DEPOSIT.HISTORY_SUB' | translate }}</p>
       </div>
       @if (historyLoading()) {
-        <span class="text-xs text-slate-400">Đang tải...</span>
+        <span class="text-xs text-slate-400">{{ 'COMMON.LOADING' | translate }}</span>
       }
     </div>
 
     @if (history().length === 0 && !historyLoading()) {
-      <div class="px-6 py-10 text-center text-sm text-slate-400">Chưa có giao dịch nạp tiền nào.</div>
+      <div class="px-6 py-10 text-center text-sm text-slate-400">{{ 'DEPOSIT.EMPTY' | translate }}</div>
     }
 
     @if (history().length > 0) {
@@ -134,12 +134,12 @@
         <table class="w-full text-left text-sm">
           <thead>
             <tr class="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-400">
-              <th class="px-6 py-3 font-semibold">Mã đơn</th>
-              <th class="px-4 py-3 font-semibold">Ví</th>
-              <th class="px-4 py-3 font-semibold">Thời gian</th>
-              <th class="px-4 py-3 font-semibold">Tài khoản</th>
-              <th class="px-4 py-3 text-right font-semibold">Số tiền</th>
-              <th class="px-6 py-3 text-right font-semibold">Trạng thái</th>
+              <th class="px-6 py-3 font-semibold">{{ 'DEPOSIT.COL_ORDER' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'DEPOSIT.COL_WALLET' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'DEPOSIT.COL_TIME' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'DEPOSIT.COL_ACCOUNT' | translate }}</th>
+              <th class="px-4 py-3 text-right font-semibold">{{ 'DEPOSIT.COL_AMOUNT' | translate }}</th>
+              <th class="px-6 py-3 text-right font-semibold">{{ 'DEPOSIT.COL_STATUS' | translate }}</th>
             </tr>
           </thead>
           <tbody>

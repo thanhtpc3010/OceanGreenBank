@@ -9,8 +9,10 @@ import {
   TxType,
   TxStatus,
   TxCategory,
-  CATEGORY_LABELS,
+  CATEGORY_KEYS,
 } from '../../core/services/transaction.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
+import { LanguageService } from '../../core/i18n/language.service';
 import { UserService, BankAccount } from '../../core/services/user.service';
 
 interface TxView {
@@ -29,13 +31,16 @@ interface TxView {
 
 @Component({
   selector: 'app-transactions',
-  imports: [DatePipe, DecimalPipe, FormsModule, RouterLink],
+  imports: [DatePipe, DecimalPipe, FormsModule, RouterLink, TranslatePipe],
   templateUrl: './transactions.component.html',
   styleUrl: './transactions.component.scss',
 })
 export class TransactionsComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly txService = inject(TransactionService);
+  private readonly language = inject(LanguageService);
+
+  protected readonly CATEGORY_KEYS = CATEGORY_KEYS;
 
   protected readonly loading = signal(true);
   protected readonly error = signal('');
@@ -126,9 +131,9 @@ export class TransactionsComponent implements OnInit {
         id: t.id,
         transactionCode: t.transactionCode,
         createdDate: t.createdDate,
-        description: t.description || 'Chuyển tiền',
+        description: t.description || this.language.t('TRANSACTIONS.DESC_FALLBACK'),
         category: t.category,
-        categoryName: CATEGORY_LABELS[t.category] ?? 'Khác',
+        categoryName: this.language.t(CATEGORY_KEYS[t.category] ?? 'CATEGORY.OTHER'),
         // Tiền ra (từ tài khoản của user) → âm; tiền vào → dương.
         amount: byId.has(t.fromAccountId) ? -t.amount : t.amount,
         type: t.type,
@@ -140,15 +145,21 @@ export class TransactionsComponent implements OnInit {
   }
 
   protected statusLabel(s: TxStatus): string {
-    return s === TxStatus.Success ? 'Thành công' : s === TxStatus.Pending ? 'Chờ xử lý' : 'Thất bại';
+    return s === TxStatus.Success
+      ? this.language.t('TRANSFER.STATUS_SUCCESS')
+      : s === TxStatus.Pending
+        ? this.language.t('TRANSFER.STATUS_PENDING')
+        : this.language.t('TRANSFER.STATUS_FAILED');
   }
 
   protected typeLabel(t: TxType): string {
-    return t === TxType.InternalTransfer ? 'Nội bộ' : 'Liên ngân hàng';
+    return t === TxType.InternalTransfer
+      ? this.language.t('TRANSFER.INTERNAL')
+      : this.language.t('TRANSFER.INTERBANK');
   }
 
   private extractError(e: unknown): string {
     const body = (e as { error?: { message?: string } })?.error;
-    return body?.message ?? (e instanceof Error ? e.message : 'Có lỗi xảy ra. Vui lòng thử lại.');
+    return body?.message ?? (e instanceof Error ? e.message : this.language.t('TRANSACTIONS.ERR_DEFAULT'));
   }
 }

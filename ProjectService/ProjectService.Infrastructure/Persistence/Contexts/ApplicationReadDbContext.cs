@@ -20,6 +20,7 @@ public class ApplicationReadDbContext(DbContextOptions<ApplicationReadDbContext>
     public DbSet<AutoEarnLog> AutoEarnLogs { get; set; }
     public DbSet<KnowledgeEntry> KnowledgeEntries { get; set; }
     public DbSet<Payment> Payments { get; set; }
+    public DbSet<Translation> Translations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

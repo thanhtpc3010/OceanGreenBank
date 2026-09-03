@@ -13,7 +13,7 @@
 >
   <!-- Nhóm: Tổng quan -->
   <p class="px-5 pb-2 pt-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-    Tổng quan
+    {{ 'SIDEBAR.OVERVIEW' | translate }}
   </p>
 
   <nav class="flex-1 space-y-1 px-3">
@@ -28,20 +28,20 @@
           <span class="flex h-6 w-6 items-center justify-center">
             <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="{ name: item.icon }" />
           </span>
-          {{ item.label }}
+          {{ item.label | translate }}
         </a>
       } @else {
         <button
           type="button"
           class="flex w-full cursor-not-allowed items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-400 transition"
-          title="{{ item.comingSoon ? 'Sắp ra mắt' : '' }}"
+          title="{{ item.comingSoon ? ('SIDEBAR.COMING_SOON' | translate) : '' }}"
         >
           <span class="flex h-6 w-6 items-center justify-center">
             <ng-container [ngTemplateOutlet]="icon" [ngTemplateOutletContext]="{ name: item.icon }" />
           </span>
-          <span class="flex-1 text-left">{{ item.label }}</span>
+          <span class="flex-1 text-left">{{ item.label | translate }}</span>
           @if (item.comingSoon) {
-            <p-tag value="Sắp ra mắt" severity="info" styleClass="!text-[10px] !px-1.5 !py-0.5" />
+            <p-tag value="{{ 'SIDEBAR.COMING_SOON' | translate }}" severity="info" styleClass="!text-[10px] !px-1.5 !py-0.5" />
           }
         </button>
       }
@@ -51,12 +51,12 @@
   <!-- Footer -->
   <div class="border-t border-slate-100 p-4">
     <div class="rounded-xl bg-gradient-to-br from-brand-50 to-ocean-50 p-3">
-      <p class="text-xs font-semibold text-brand-800">SmartBank Premium</p>
+      <p class="text-xs font-semibold text-brand-800">{{ 'SIDEBAR.PREMIUM' | translate }}</p>
       <p class="mt-1 text-[11px] leading-snug text-slate-500">
-        Nâng cấp để hưởng ưu đãi lãi suất & miễn phí chuyển tiền.
+        {{ 'SIDEBAR.PREMIUM_DESC' | translate }}
       </p>
       <p-button
-        label="Tìm hiểu thêm"
+        label="{{ 'SIDEBAR.LEARN_MORE' | translate }}"
         styleClass="!mt-2 !w-full !bg-gradient-to-r !from-brand-600 !to-ocean-600 !py-1.5 !text-xs !font-semibold !text-white"
       />
     </div>

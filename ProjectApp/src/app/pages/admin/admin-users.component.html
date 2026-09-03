@@ -2,8 +2,8 @@
   <!-- Header -->
   <div class="flex flex-wrap items-center justify-between gap-3">
     <div>
-      <h1 class="text-xl font-bold text-slate-800">Quản lý người dùng</h1>
-      <p class="text-sm text-slate-500">Chỉ quản trị viên mới có quyền truy cập</p>
+      <h1 class="text-xl font-bold text-slate-800">{{ 'ADMIN.USERS_TITLE' | translate }}</h1>
+      <p class="text-sm text-slate-500">{{ 'ADMIN.USERS_SUBTITLE' | translate }}</p>
     </div>
     <div class="flex items-center gap-2">
       <div class="relative">
@@ -14,7 +14,7 @@
           type="text"
           [(ngModel)]="search"
           name="search"
-          placeholder="Tìm tên hoặc email..."
+          [placeholder]="'ADMIN.USERS_SEARCH' | translate"
           class="h-10 w-56 rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
         />
       </div>
@@ -26,7 +26,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
-        Thêm người dùng
+        {{ 'ADMIN.ADD_USER' | translate }}
       </button>
     </div>
   </div>
@@ -42,19 +42,19 @@
       (ngSubmit)="addUser()"
       class="rounded-2xl border border-brand-200 bg-brand-50/40 p-5"
     >
-      <h2 class="text-sm font-bold text-slate-800">Thêm người dùng mới</h2>
+      <h2 class="text-sm font-bold text-slate-800">{{ 'ADMIN.USERS_ADD_TITLE' | translate }}</h2>
       <div class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <input type="text" [(ngModel)]="newUser.fullName" name="nf" placeholder="Họ và tên *" class="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-brand-400" />
-        <input type="email" [(ngModel)]="newUser.email" name="ne" placeholder="Email *" class="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-brand-400" />
-        <input type="password" [(ngModel)]="newUser.password" name="np" placeholder="Mật khẩu *" class="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-brand-400" />
-        <input type="text" [(ngModel)]="newUser.phone" name="nph" placeholder="Số điện thoại" class="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-brand-400" />
-        <input type="text" [(ngModel)]="newUser.identityCard" name="nic" placeholder="CCCD/CMND" class="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-brand-400" />
+        <input type="text" [(ngModel)]="newUser.fullName" name="nf" [placeholder]="'ADMIN.USERS_FULL_NAME' | translate" class="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-brand-400" />
+        <input type="email" [(ngModel)]="newUser.email" name="ne" [placeholder]="'ADMIN.USERS_EMAIL' | translate" class="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-brand-400" />
+        <input type="password" [(ngModel)]="newUser.password" name="np" [placeholder]="'ADMIN.USERS_PASSWORD' | translate" class="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-brand-400" />
+        <input type="text" [(ngModel)]="newUser.phone" name="nph" [placeholder]="'ADMIN.USERS_PHONE' | translate" class="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-brand-400" />
+        <input type="text" [(ngModel)]="newUser.identityCard" name="nic" [placeholder]="'ADMIN.USERS_ID' | translate" class="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-brand-400" />
         <input type="date" [(ngModel)]="newUser.dateOfBirth" name="ndob" class="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-brand-400" />
-        <input type="text" [(ngModel)]="newUser.address" name="naddr" placeholder="Địa chỉ" class="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-brand-400 sm:col-span-2 lg:col-span-2" />
+        <input type="text" [(ngModel)]="newUser.address" name="naddr" [placeholder]="'ADMIN.USERS_ADDRESS' | translate" class="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-brand-400 sm:col-span-2 lg:col-span-2" />
         <div class="flex items-end justify-end gap-2">
-          <button type="button" (click)="showAddForm.set(false)" class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-600 ring-1 ring-slate-200">Hủy</button>
+          <button type="button" (click)="showAddForm.set(false)" class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-600 ring-1 ring-slate-200">{{ 'COMMON.CANCEL' | translate }}</button>
           <button type="submit" [disabled]="adding()" class="rounded-xl bg-gradient-to-r from-brand-600 to-ocean-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
-            {{ adding() ? 'Đang tạo...' : 'Tạo mới' }}
+            {{ adding() ? ('ADMIN.USERS_CREATING' | translate) : ('ADMIN.USERS_CREATE' | translate) }}
           </button>
         </div>
       </div>
@@ -64,18 +64,18 @@
   <!-- Bảng user -->
   <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
     @if (loading()) {
-      <p class="p-10 text-center text-sm text-slate-400">Đang tải...</p>
+      <p class="p-10 text-center text-sm text-slate-400">{{ 'COMMON.LOADING' | translate }}</p>
     } @else {
       <div class="overflow-x-auto">
         <table class="w-full text-left text-sm">
           <thead>
             <tr class="border-b border-slate-100 bg-slate-50 text-xs uppercase tracking-wider text-slate-400">
-              <th class="px-4 py-3 font-semibold">Người dùng</th>
-              <th class="px-4 py-3 font-semibold">SĐT</th>
-              <th class="px-4 py-3 font-semibold">CCCD</th>
-              <th class="px-4 py-3 font-semibold">Trạng thái</th>
-              <th class="px-4 py-3 font-semibold">Tham gia</th>
-              <th class="px-4 py-3 text-right font-semibold">Thao tác</th>
+              <th class="px-4 py-3 font-semibold">{{ 'ADMIN.USERS_COL_USER' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'ADMIN.USERS_COL_PHONE' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'ADMIN.USERS_COL_ID' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'ADMIN.USERS_COL_STATUS' | translate }}</th>
+              <th class="px-4 py-3 font-semibold">{{ 'ADMIN.USERS_COL_JOINED' | translate }}</th>
+              <th class="px-4 py-3 text-right font-semibold">{{ 'ADMIN.USERS_COL_ACTIONS' | translate }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-50">
@@ -102,7 +102,7 @@
                     [class.bg-slate-200]="!u.isActive"
                     [class.text-slate-500]="!u.isActive"
                   >
-                    {{ u.isActive ? 'Hoạt động' : 'Đã khóa' }}
+                    {{ u.isActive ? ('ADMIN.USERS_ACTIVE' | translate) : ('ADMIN.USERS_LOCKED' | translate) }}
                   </span>
                 </td>
                 <td class="px-4 py-3 text-xs text-slate-500">{{ formatDate(u.createdDate) }}</td>
@@ -113,7 +113,7 @@
                       (click)="openPermissions(u)"
                       class="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-brand-700 transition hover:bg-brand-50"
                     >
-                      Quyền
+                      {{ 'ADMIN.USERS_PERMISSIONS' | translate }}
                     </button>
                     <button
                       type="button"
@@ -124,28 +124,28 @@
                       [class.text-emerald-700]="!u.isActive"
                       [class.hover:bg-emerald-50]="!u.isActive"
                     >
-                      {{ u.isActive ? 'Khóa' : 'Mở khóa' }}
+                      {{ u.isActive ? ('ADMIN.USERS_LOCK' | translate) : ('ADMIN.USERS_UNLOCK' | translate) }}
                     </button>
                     <button
                       type="button"
                       (click)="deleteUser(u)"
                       class="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
                     >
-                      Xóa
+                      {{ 'COMMON.DELETE' | translate }}
                     </button>
                   </div>
                 </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="6" class="px-4 py-10 text-center text-sm text-slate-400">Không tìm thấy người dùng.</td>
+                <td colspan="6" class="px-4 py-10 text-center text-sm text-slate-400">{{ 'ADMIN.USERS_EMPTY' | translate }}</td>
               </tr>
             }
           </tbody>
         </table>
       </div>
       <p class="border-t border-slate-100 px-4 py-2.5 text-xs text-slate-400">
-        Tổng cộng: {{ filteredUsers().length }} người dùng
+        {{ 'ADMIN.USERS_TOTAL' | translate: { count: filteredUsers().length } }}
       </p>
     }
   </section>
@@ -156,10 +156,10 @@
       <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" (click)="$event.stopPropagation()">
         <div class="flex items-start justify-between">
           <div>
-            <h2 class="text-base font-bold text-slate-800">Vai trò & Quyền</h2>
+            <h2 class="text-base font-bold text-slate-800">{{ 'ADMIN.USERS_ROLE_TITLE' | translate }}</h2>
             <p class="text-sm text-slate-500">{{ permView()!.fullName }} · {{ permView()!.email }}</p>
           </div>
-          <button type="button" (click)="closePermissions()" class="rounded-lg p-1 text-slate-400 hover:bg-slate-100" aria-label="Đóng">
+          <button type="button" (click)="closePermissions()" class="rounded-lg p-1 text-slate-400 hover:bg-slate-100" [attr.aria-label]="'COMMON.CLOSE' | translate">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
             </svg>
@@ -168,29 +168,29 @@
 
         <div class="mt-4 space-y-4">
           <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Vai trò</p>
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">{{ 'ADMIN.USERS_ROLES' | translate }}</p>
             <div class="mt-1.5 flex flex-wrap gap-1.5">
               @for (r of permView()!.roles; track r.code) {
                 <span class="rounded-full bg-brand-100 px-3 py-1 text-xs font-semibold text-brand-700">{{ r.roleName }} ({{ r.code }})</span>
               } @empty {
-                <span class="text-sm text-slate-400">Không có vai trò</span>
+                <span class="text-sm text-slate-400">{{ 'ADMIN.USERS_NO_ROLES' | translate }}</span>
               }
             </div>
           </div>
           <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Quyền ({{ permView()!.permissions.length }})</p>
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">{{ 'ADMIN.USERS_PERMS' | translate: { count: permView()!.permissions.length } }}</p>
             <div class="mt-1.5 flex max-h-48 flex-wrap gap-1.5 overflow-y-auto">
               @for (p of permView()!.permissions; track p) {
                 <span class="rounded-md bg-slate-100 px-2 py-1 font-mono text-[11px] text-slate-600">{{ p }}</span>
               } @empty {
-                <span class="text-sm text-slate-400">Không có quyền</span>
+                <span class="text-sm text-slate-400">{{ 'ADMIN.USERS_NO_PERMS' | translate }}</span>
               }
             </div>
           </div>
         </div>
 
         <button type="button" (click)="closePermissions()" class="mt-5 w-full rounded-xl bg-gradient-to-r from-brand-600 to-ocean-600 py-2.5 text-sm font-semibold text-white">
-          Đóng
+          {{ 'COMMON.CLOSE' | translate }}
         </button>
       </div>
     </div>

@@ -3,10 +3,12 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { PaymentService, PaymentProvider, PaymentDto } from '../../core/services/payment.service';
+import { LanguageService } from '../../core/i18n/language.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-wallet-pay',
-  imports: [DecimalPipe, DatePipe],
+  imports: [DecimalPipe, DatePipe, TranslatePipe],
   templateUrl: './wallet-pay.component.html',
   styleUrl: './wallet-pay.component.scss',
 })
@@ -14,6 +16,7 @@ export class WalletPayComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly paymentService = inject(PaymentService);
+  private readonly language = inject(LanguageService);
 
   protected readonly payment = signal<PaymentDto | null>(null);
   protected readonly loading = signal(true);
@@ -26,7 +29,7 @@ export class WalletPayComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.error.set('Không tìm thấy đơn thanh toán.');
+      this.error.set(this.language.t('WALLET.ERR_NOT_FOUND'));
       this.loading.set(false);
       return;
     }
@@ -68,7 +71,7 @@ export class WalletPayComponent implements OnInit {
   }
 
   protected providerLabel(): string {
-    return this.payment()?.providerName ?? 'Ví điện tử';
+    return this.payment()?.providerName ?? this.language.t('WALLET.PROVIDER_FALLBACK');
   }
 
   protected backToDeposit(): void {
@@ -77,6 +80,6 @@ export class WalletPayComponent implements OnInit {
 
   private extractError(e: unknown): string {
     const body = (e as { error?: { message?: string } })?.error;
-    return body?.message ?? (e instanceof Error ? e.message : 'Không thể xử lý thanh toán. Vui lòng thử lại.');
+    return body?.message ?? (e instanceof Error ? e.message : this.language.t('WALLET.ERR_DEFAULT'));
   }
 }

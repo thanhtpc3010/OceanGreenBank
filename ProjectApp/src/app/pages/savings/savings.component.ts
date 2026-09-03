@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 
 import { ConfirmService } from '../../core/services/confirm.service';
 import { SavingsService, SavingsPlanDto, CYCLE_OPTIONS } from '../../core/services/savings.service';
+import { LanguageService } from '../../core/i18n/language.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { UserService, BankAccount } from '../../core/services/user.service';
 
 @Component({
   selector: 'app-savings',
-  imports: [FormsModule, DecimalPipe],
+  imports: [FormsModule, DecimalPipe, TranslatePipe],
   templateUrl: './savings.component.html',
   styleUrl: './savings.component.scss',
 })
@@ -16,6 +18,7 @@ export class SavingsComponent implements OnInit {
   private readonly userService = inject(UserService);
   protected readonly savingsService = inject(SavingsService);
   private readonly confirmService = inject(ConfirmService);
+  private readonly language = inject(LanguageService);
 
   protected readonly accounts = signal<BankAccount[]>([]);
   protected readonly plans = signal<SavingsPlanDto[]>([]);
@@ -73,16 +76,16 @@ export class SavingsComponent implements OnInit {
     this.success.set('');
 
     if (!this.sourceAccountId() || !this.targetAccountId()) {
-      this.error.set('Vui lòng chọn tài khoản nguồn và tài khoản tiết kiệm đích.');
+      this.error.set(this.language.t('SAVINGS.ERR_SELECT'));
       return;
     }
     if (this.sourceAccountId() === this.targetAccountId()) {
-      this.error.set('Tài khoản nguồn và đích phải khác nhau.');
+      this.error.set(this.language.t('SAVINGS.ERR_SAME'));
       return;
     }
     const amount = this.amount() ?? 0;
     if (amount <= 0) {
-      this.error.set('Số tiền gửi mỗi kỳ phải lớn hơn 0.');
+      this.error.set(this.language.t('SAVINGS.ERR_AMOUNT'));
       return;
     }
 
@@ -97,7 +100,7 @@ export class SavingsComponent implements OnInit {
         cycle: this.cycle(),
         startDate: this.startDate() + 'T00:00:00',
       });
-      this.success.set('Đã tạo kế hoạch tiết kiệm định kỳ thành công!');
+      this.success.set(this.language.t('SAVINGS.CREATE_SUCCESS'));
       await this.loadPlans(profile.id);
     } catch (e) {
       this.error.set(this.extractError(e));
@@ -108,14 +111,17 @@ export class SavingsComponent implements OnInit {
 
   protected async depositNow(plan: SavingsPlanDto): Promise<void> {
     const ok = await this.confirmService.confirm({
-      title: 'Gửi tiền kỳ này',
-      message: `Gửi ${plan.amount.toLocaleString('vi-VN')} VND vào sổ tiết kiệm (${plan.targetAccountNumber})?`,
-      confirmText: 'Gửi ngay',
+      title: this.language.t('SAVINGS.DEPOSIT_TITLE'),
+      message: this.language.t('SAVINGS.DEPOSIT_MSG', {
+        amount: plan.amount.toLocaleString('vi-VN'),
+        account: plan.targetAccountNumber,
+      }),
+      confirmText: this.language.t('SAVINGS.DEPOSIT_TEXT'),
     });
     if (!ok) return;
     try {
       const updated = await this.savingsService.deposit(plan.id);
-      this.success.set(`Đã gửi ${updated.amount.toLocaleString('vi-VN')} VND thành công!`);
+      this.success.set(this.language.t('SAVINGS.DEPOSIT_SUCCESS', { amount: updated.amount.toLocaleString('vi-VN') }));
       this.plans.update((list) => list.map((p) => (p.id === updated.id ? updated : p)));
       await this.userService.getAccounts();
       await this.loadPlans(updated.userId);
@@ -126,19 +132,28 @@ export class SavingsComponent implements OnInit {
 
   protected async cancelPlan(plan: SavingsPlanDto): Promise<void> {
     const ok = await this.confirmService.confirm({
-      title: 'Hủy kế hoạch tiết kiệm',
-      message: `Hủy kế hoạch gửi ${plan.amount.toLocaleString('vi-VN')} VND / ${this.savingsService.cycleLabel(plan.cycle)}? Số tiền đã gửi không bị ảnh hưởng.`,
-      confirmText: 'Hủy kế hoạch',
+      title: this.language.t('SAVINGS.CANCEL_TITLE'),
+      message: this.language.t('SAVINGS.CANCEL_MSG', {
+        amount: plan.amount.toLocaleString('vi-VN'),
+        cycle: this.cycleLabel(plan.cycle),
+      }),
+      confirmText: this.language.t('SAVINGS.CANCEL_TEXT'),
       danger: true,
     });
     if (!ok) return;
     try {
       await this.savingsService.cancelPlan(plan.id);
-      this.success.set('Đã hủy kế hoạch.');
+      this.success.set(this.language.t('SAVINGS.CANCEL_SUCCESS'));
       await this.loadPlans(plan.userId);
     } catch (e) {
       this.error.set(this.extractError(e));
     }
+  }
+
+  protected cycleLabel(cycle: string): string {
+    const key =
+      cycle === 'DAILY' ? 'SAVINGS.CYCLE_DAILY' : cycle === 'WEEKLY' ? 'SAVINGS.CYCLE_WEEKLY' : 'SAVINGS.CYCLE_MONTHLY';
+    return this.language.t(key);
   }
 
   protected formatDate(iso: string | null): string {
@@ -149,6 +164,6 @@ export class SavingsComponent implements OnInit {
 
   private extractError(e: unknown): string {
     const body = (e as { error?: { message?: string } })?.error;
-    return body?.message ?? (e instanceof Error ? e.message : 'Có lỗi xảy ra.');
+    return body?.message ?? (e instanceof Error ? e.message : this.language.t('SAVINGS.ERR_DEFAULT'));
   }
 }

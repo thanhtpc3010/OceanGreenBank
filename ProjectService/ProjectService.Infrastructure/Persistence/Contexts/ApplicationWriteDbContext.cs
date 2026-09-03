@@ -20,6 +20,7 @@ public class ApplicationWriteDbContext(DbContextOptions<ApplicationWriteDbContex
     public DbSet<AutoEarnLog> AutoEarnLogs { get; set; }
     public DbSet<KnowledgeEntry> KnowledgeEntries { get; set; }
     public DbSet<Payment> Payments { get; set; }
+    public DbSet<Translation> Translations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

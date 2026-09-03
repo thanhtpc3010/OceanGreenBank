@@ -34,9 +34,9 @@
         </span>
         <div>
           <h3 class="text-base font-bold text-slate-800">
-            {{ s.options.title ?? (s.options.danger ? 'Xác nhận thao tác' : 'Xác nhận') }}
+            {{ s.options.title ?? (s.options.danger ? ('COMMON.CONFIRM_ACTION' | translate) : ('COMMON.CONFIRM' | translate)) }}
           </h3>
-          <p class="text-xs text-slate-500">Thao tác này sẽ thay đổi dữ liệu</p>
+          <p class="text-xs text-slate-500">{{ 'COMMON.CONFIRM_DESC' | translate }}</p>
         </div>
       </div>
 
@@ -52,7 +52,7 @@
           (click)="cancel()"
           class="rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 ring-1 ring-slate-200 transition hover:bg-slate-50"
         >
-          {{ s.options.cancelText ?? 'Hủy' }}
+          {{ s.options.cancelText ?? ('COMMON.CANCEL' | translate) }}
         </button>
         <button
           type="button"
@@ -64,7 +64,7 @@
           [class.from-brand-600]="!s.options.danger"
           [class.to-ocean-600]="!s.options.danger"
         >
-          {{ s.options.confirmText ?? 'Xác nhận' }}
+          {{ s.options.confirmText ?? ('COMMON.CONFIRM' | translate) }}
         </button>
       </div>
     </div>

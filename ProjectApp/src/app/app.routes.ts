@@ -12,10 +12,12 @@ import { TransferComponent } from './pages/transfer/transfer.component';
 import { TransactionsComponent } from './pages/transactions/transactions.component';
 import { SavingsComponent } from './pages/savings/savings.component';
 import { DepositComponent } from './pages/deposit/deposit.component';
+import { DonateComponent } from './pages/donate/donate.component';
 import { WalletPayComponent } from './pages/wallet-pay/wallet-pay.component';
 import { AdminUsersComponent } from './pages/admin/admin-users.component';
 import { AdminAutoEarnComponent } from './pages/admin/admin-auto-earn.component';
 import { AdminKnowledgeComponent } from './pages/admin/admin-knowledge.component';
+import { AdminTranslationsComponent } from './pages/admin/admin-translations.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -36,9 +38,11 @@ export const routes: Routes = [
       { path: 'transactions', component: TransactionsComponent },
       { path: 'savings', component: SavingsComponent },
       { path: 'deposit', component: DepositComponent },
+      { path: 'donate', component: DonateComponent },
       { path: 'admin/users', component: AdminUsersComponent, canActivate: [adminGuard] },
       { path: 'admin/auto-earn', component: AdminAutoEarnComponent, canActivate: [adminGuard] },
       { path: 'admin/knowledge', component: AdminKnowledgeComponent, canActivate: [adminGuard] },
+      { path: 'admin/translations', component: AdminTranslationsComponent, canActivate: [adminGuard] },
       {
         path: 'account',
         children: [

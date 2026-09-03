@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { PaymentService, PaymentProvider, PaymentDto } from '../../core/services/payment.service';
+import { LanguageService } from '../../core/i18n/language.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { UserService, BankAccount } from '../../core/services/user.service';
 
 @Component({
   selector: 'app-deposit',
-  imports: [FormsModule, DecimalPipe, DatePipe],
+  imports: [FormsModule, DecimalPipe, DatePipe, TranslatePipe],
   templateUrl: './deposit.component.html',
   styleUrl: './deposit.component.scss',
 })
@@ -16,6 +18,7 @@ export class DepositComponent implements OnInit {
   private readonly paymentService = inject(PaymentService);
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
+  private readonly language = inject(LanguageService);
 
   /* ---- Form ---- */
   protected readonly provider = signal<number>(PaymentProvider.Momo);
@@ -33,13 +36,13 @@ export class DepositComponent implements OnInit {
     {
       value: PaymentProvider.Momo,
       label: 'MoMo',
-      sub: 'Ví điện tử MoMo',
+      sub: this.language.t('DEPOSIT.EWALLET_MOMO'),
       brand: '#d82d8b',
     },
     {
       value: PaymentProvider.ZaloPay,
       label: 'ZaloPay',
-      sub: 'Ví điện tử ZaloPay',
+      sub: this.language.t('DEPOSIT.EWALLET_ZALOPAY'),
       brand: '#0068ff',
     },
   ];
@@ -74,11 +77,11 @@ export class DepositComponent implements OnInit {
     this.error.set('');
     const amt = this.amount();
     if (!amt || amt <= 0) {
-      this.error.set('Vui lòng nhập số tiền nạp hợp lệ.');
+      this.error.set(this.language.t('DEPOSIT.ERR_AMOUNT'));
       return;
     }
     if (!this.accountId()) {
-      this.error.set('Vui lòng chọn tài khoản nhận tiền.');
+      this.error.set(this.language.t('DEPOSIT.ERR_ACCOUNT'));
       return;
     }
     this.submitting.set(true);
@@ -112,6 +115,6 @@ export class DepositComponent implements OnInit {
 
   private extractError(e: unknown): string {
     const body = (e as { error?: { message?: string } })?.error;
-    return body?.message ?? (e instanceof Error ? e.message : 'Không thể tạo đơn thanh toán. Vui lòng thử lại.');
+    return body?.message ?? (e instanceof Error ? e.message : this.language.t('DEPOSIT.ERR_DEFAULT'));
   }
 }

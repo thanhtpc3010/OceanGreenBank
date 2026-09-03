@@ -3,16 +3,19 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { UserService } from '../../core/services/user.service';
+import { LanguageService } from '../../core/i18n/language.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-account-edit',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, TranslatePipe],
   templateUrl: './edit-account.component.html',
   styleUrl: './edit-account.component.scss',
 })
 export class EditAccountComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
+  private readonly language = inject(LanguageService);
 
   protected readonly loading = signal(true);
   protected readonly saving = signal(false);
@@ -47,7 +50,7 @@ export class EditAccountComponent implements OnInit {
     this.success.set('');
 
     if (!this.fullName().trim() || !this.phone().trim()) {
-      this.error.set('Họ tên và số điện thoại không được để trống.');
+      this.error.set(this.language.t('EDIT.ERR_REQUIRED'));
       return;
     }
 
@@ -59,7 +62,7 @@ export class EditAccountComponent implements OnInit {
         gender: this.gender(),
         address: this.address().trim(),
       });
-      this.success.set('Cập nhật thông tin thành công!');
+      this.success.set(this.language.t('EDIT.SUCCESS'));
       setTimeout(() => this.router.navigate(['/account']), 900);
     } finally {
       this.saving.set(false);
