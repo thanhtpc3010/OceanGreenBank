@@ -3,16 +3,19 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { UserService } from '../../core/services/user.service';
+import { LanguageService } from '../../core/i18n/language.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-account-password',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, TranslatePipe],
   templateUrl: './password-account.component.html',
   styleUrl: './password-account.component.scss',
 })
 export class PasswordAccountComponent {
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
+  private readonly language = inject(LanguageService);
 
   protected readonly saving = signal(false);
   protected readonly error = signal('');
@@ -28,29 +31,29 @@ export class PasswordAccountComponent {
 
     // ---- Validation ----
     if (!this.current()) {
-      this.error.set('Vui lòng nhập mật khẩu hiện tại.');
+      this.error.set(this.language.t('PASSWORD.ERR_CURRENT_REQUIRED'));
       return;
     }
     if (this.next().length < 8) {
-      this.error.set('Mật khẩu mới phải có ít nhất 8 ký tự.');
+      this.error.set(this.language.t('PASSWORD.ERR_MIN_LENGTH'));
       return;
     }
     if (this.next() === this.current()) {
-      this.error.set('Mật khẩu mới phải khác mật khẩu hiện tại.');
+      this.error.set(this.language.t('PASSWORD.ERR_SAME'));
       return;
     }
     if (this.next() !== this.confirm()) {
-      this.error.set('Mật khẩu xác nhận không khớp.');
+      this.error.set(this.language.t('PASSWORD.ERR_MISMATCH'));
       return;
     }
 
     this.saving.set(true);
     try {
       await this.userService.changePassword(this.current(), this.next());
-      this.success.set('Đổi mật khẩu thành công!');
+      this.success.set(this.language.t('PASSWORD.SUCCESS'));
       setTimeout(() => this.router.navigate(['/account']), 900);
     } catch (e) {
-      this.error.set(e instanceof Error ? e.message : 'Đổi mật khẩu thất bại.');
+      this.error.set(e instanceof Error ? e.message : this.language.t('PASSWORD.ERR_FAILED'));
     } finally {
       this.saving.set(false);
     }
@@ -68,23 +71,23 @@ export class PasswordAccountComponent {
     this.tpSuccess.set('');
 
     if (!/^\d{6}$/.test(this.tpNext())) {
-      this.tpError.set('Mật khẩu giao dịch phải là 6 chữ số.');
+      this.tpError.set(this.language.t('PASSWORD.PIN_REQUIRED'));
       return;
     }
     if (this.tpNext() !== this.tpConfirm()) {
-      this.tpError.set('Mật khẩu xác nhận không khớp.');
+      this.tpError.set(this.language.t('PASSWORD.ERR_MISMATCH'));
       return;
     }
 
     this.tpSaving.set(true);
     try {
       await this.userService.setTransactionPassword(this.tpNext());
-      this.tpSuccess.set('Đã cài đặt mật khẩu giao dịch thành công!');
+      this.tpSuccess.set(this.language.t('PASSWORD.TP_SUCCESS'));
       this.tpNext.set('');
       this.tpConfirm.set('');
     } catch (e) {
       const body = (e as { error?: { message?: string } })?.error;
-      this.tpError.set(body?.message ?? (e instanceof Error ? e.message : 'Có lỗi xảy ra.'));
+      this.tpError.set(body?.message ?? (e instanceof Error ? e.message : this.language.t('PASSWORD.ERR_DEFAULT')));
     } finally {
       this.tpSaving.set(false);
     }

@@ -27,6 +27,7 @@ export enum TxCategory {
   Education = 7,
   Savings = 8,
   Transfer = 9,
+  Donation = 10,
 }
 
 export const CATEGORY_LABELS: Record<TxCategory, string> = {
@@ -40,12 +41,32 @@ export const CATEGORY_LABELS: Record<TxCategory, string> = {
   [TxCategory.Education]: 'Giáo dục',
   [TxCategory.Savings]: 'Tiết kiệm',
   [TxCategory.Transfer]: 'Chuyển khoản',
+  [TxCategory.Donation]: 'Ủng hộ / Từ thiện',
 };
 
-/** Danh sách danh mục cho dropdown. */
-export const CATEGORY_OPTIONS: { value: TxCategory; label: string }[] = (
+/** Key dịch (i18n) tương ứng với từng danh mục — dùng với `| translate`. */
+export const CATEGORY_KEYS: Record<TxCategory, string> = {
+  [TxCategory.Other]: 'CATEGORY.OTHER',
+  [TxCategory.Food]: 'CATEGORY.FOOD',
+  [TxCategory.Shopping]: 'CATEGORY.SHOPPING',
+  [TxCategory.Bills]: 'CATEGORY.BILLS',
+  [TxCategory.Transport]: 'CATEGORY.TRANSPORT',
+  [TxCategory.Entertainment]: 'CATEGORY.ENTERTAINMENT',
+  [TxCategory.Health]: 'CATEGORY.HEALTH',
+  [TxCategory.Education]: 'CATEGORY.EDUCATION',
+  [TxCategory.Savings]: 'CATEGORY.SAVINGS',
+  [TxCategory.Transfer]: 'CATEGORY.TRANSFER',
+  [TxCategory.Donation]: 'CATEGORY.DONATION',
+};
+
+/** Danh sách danh mục cho dropdown (label là fallback, key dùng để dịch). */
+export const CATEGORY_OPTIONS: { value: TxCategory; key: string; label: string }[] = (
   Object.keys(CATEGORY_LABELS) as unknown as TxCategory[]
-).map((v) => ({ value: Number(v) as TxCategory, label: CATEGORY_LABELS[v] }));
+).map((v) => ({
+  value: Number(v) as TxCategory,
+  key: CATEGORY_KEYS[Number(v) as TxCategory] ?? 'CATEGORY.OTHER',
+  label: CATEGORY_LABELS[v],
+}));
 
 /** Giao dịch (khớp TransactionDto backend). */
 export interface TransactionDto {

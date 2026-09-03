@@ -19,6 +19,8 @@ public class ApplicationReadDbContext(DbContextOptions<ApplicationReadDbContext>
     public DbSet<AutoEarnSetting> AutoEarnSettings { get; set; }
     public DbSet<AutoEarnLog> AutoEarnLogs { get; set; }
     public DbSet<KnowledgeEntry> KnowledgeEntries { get; set; }
+    public DbSet<Payment> Payments { get; set; }
+    public DbSet<Translation> Translations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -2,8 +2,8 @@
   <!-- Header -->
   <div class="flex flex-wrap items-center justify-between gap-3">
     <div>
-      <h1 class="text-xl font-bold text-slate-800">Lịch sử giao dịch</h1>
-      <p class="text-sm text-slate-500">Toàn bộ giao dịch của các tài khoản của bạn</p>
+      <h1 class="text-xl font-bold text-slate-800">{{ 'TRANSACTIONS.TITLE' | translate }}</h1>
+      <p class="text-sm text-slate-500">{{ 'TRANSACTIONS.SUBTITLE' | translate }}</p>
     </div>
     <a
       routerLink="/dashboard"
@@ -12,7 +12,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
       </svg>
-      Quay lại Dashboard
+      {{ 'TRANSACTIONS.BACK' | translate }}
     </a>
   </div>
 
@@ -29,7 +29,7 @@
         (change)="onAccountChange()"
         class="h-10 w-64 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
       >
-        <option value="all">Tất cả tài khoản</option>
+        <option value="all">{{ 'TRANSACTIONS.ALL_ACCOUNTS' | translate }}</option>
         @for (acc of accounts(); track acc.id) {
           <option [value]="acc.id" [disabled]="!acc.isActive">
             {{ acc.accountNumber }} — {{ acc.balance | number : '1.0-0' }} VND{{ acc.isActive ? '' : ' (đã đóng)' }}
@@ -40,34 +40,34 @@
         type="text"
         [(ngModel)]="search"
         name="search"
-        placeholder="Tìm theo nội dung / danh mục / người nhận..."
+        placeholder="{{ 'TRANSACTIONS.SEARCH' | translate }}"
         class="h-10 w-72 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
       />
     </div>
     <div class="flex items-center gap-4 text-sm">
-      <span class="text-slate-500">Tổng thu: <b class="text-emerald-600">{{ totalIn() | number : '1.0-0' }}</b></span>
-      <span class="text-slate-500">Tổng chi: <b class="text-rose-600">{{ totalOut() | number : '1.0-0' }}</b></span>
+      <span class="text-slate-500">{{ 'TRANSACTIONS.TOTAL_IN' | translate }} <b class="text-emerald-600">{{ totalIn() | number : '1.0-0' }}</b></span>
+      <span class="text-slate-500">{{ 'TRANSACTIONS.TOTAL_OUT' | translate }} <b class="text-rose-600">{{ totalOut() | number : '1.0-0' }}</b></span>
     </div>
   </div>
 
   <!-- Bảng giao dịch -->
   <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
     @if (loading()) {
-      <p class="py-10 text-center text-sm text-slate-400">Đang tải giao dịch...</p>
+      <p class="py-10 text-center text-sm text-slate-400">{{ 'TRANSACTIONS.LOADING' | translate }}</p>
     } @else {
       <div class="overflow-x-auto">
         <table class="w-full min-w-[760px] text-left text-sm">
           <thead>
             <tr class="border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-400">
-              <th class="py-2 pr-3 font-semibold">Thời gian</th>
-              <th class="py-2 pr-3 font-semibold">Mã GD</th>
-              <th class="py-2 pr-3 font-semibold">Nội dung</th>
-              <th class="py-2 pr-3 font-semibold">Tài khoản nguồn</th>
-              <th class="py-2 pr-3 font-semibold">Người nhận</th>
-              <th class="py-2 pr-3 font-semibold">Loại</th>
-              <th class="py-2 pr-3 font-semibold">Danh mục</th>
-              <th class="py-2 pr-3 text-right font-semibold">Số tiền</th>
-              <th class="py-2 font-semibold">Trạng thái</th>
+              <th class="py-2 pr-3 font-semibold">{{ 'TRANSACTIONS.COL_TIME' | translate }}</th>
+              <th class="py-2 pr-3 font-semibold">{{ 'TRANSACTIONS.COL_CODE' | translate }}</th>
+              <th class="py-2 pr-3 font-semibold">{{ 'TRANSACTIONS.COL_DESC' | translate }}</th>
+              <th class="py-2 pr-3 font-semibold">{{ 'TRANSACTIONS.COL_FROM' | translate }}</th>
+              <th class="py-2 pr-3 font-semibold">{{ 'TRANSACTIONS.COL_RECEIVER' | translate }}</th>
+              <th class="py-2 pr-3 font-semibold">{{ 'TRANSACTIONS.COL_TYPE' | translate }}</th>
+              <th class="py-2 pr-3 font-semibold">{{ 'TRANSACTIONS.COL_CATEGORY' | translate }}</th>
+              <th class="py-2 pr-3 text-right font-semibold">{{ 'TRANSACTIONS.COL_AMOUNT' | translate }}</th>
+              <th class="py-2 font-semibold">{{ 'TRANSACTIONS.COL_STATUS' | translate }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
@@ -80,7 +80,7 @@
                 <td class="py-3 pr-3 text-slate-600">{{ tx.receiverName || '—' }}</td>
                 <td class="py-3 pr-3 text-slate-600">{{ typeLabel(tx.type) }}</td>
                 <td class="py-3 pr-3">
-                  <span class="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-700">{{ tx.categoryName }}</span>
+                  <span class="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-700">{{ CATEGORY_KEYS[tx.category] | translate }}</span>
                 </td>
                 <td class="whitespace-nowrap py-3 pr-3 text-right font-bold" [class.text-emerald-600]="tx.amount > 0" [class.text-rose-600]="tx.amount < 0">
                   {{ tx.amount > 0 ? '+' : '' }}{{ tx.amount | number : '1.0-0' }} VND
@@ -101,7 +101,7 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="9" class="py-10 text-center text-sm text-slate-400">Chưa có giao dịch nào.</td>
+                <td colspan="9" class="py-10 text-center text-sm text-slate-400">{{ 'TRANSACTIONS.NO_TX' | translate }}</td>
               </tr>
             }
           </tbody>

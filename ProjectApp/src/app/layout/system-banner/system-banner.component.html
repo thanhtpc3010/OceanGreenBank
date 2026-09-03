@@ -1,7 +1,7 @@
 <div
   class="flex shrink-0 items-center justify-center gap-2 border-b border-slate-200 bg-gradient-to-r from-brand-50 via-white to-ocean-50 px-4 py-1.5 text-[12px] text-slate-600"
 >
-  <p-tag value="Hệ thống hoạt động bình thường" severity="success" />
+  <p-tag [value]="'SYSTEM.BANNER_OK' | translate" severity="success" />
   <span class="hidden text-slate-400 sm:inline">•</span>
-  <span class="hidden text-slate-500 sm:inline">Bảo trì định kỳ 02:00 – 04:00 hằng ngày</span>
+  <span class="hidden text-slate-500 sm:inline">{{ 'SYSTEM.BANNER_MAINT' | translate }}</span>
 </div>

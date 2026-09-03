@@ -1,8 +1,8 @@
 <div class="mx-auto max-w-4xl space-y-5 p-3 lg:p-5">
   <!-- Header -->
   <div>
-    <h1 class="text-xl font-bold text-slate-800">Chuyển tiền</h1>
-    <p class="text-sm text-slate-500">Chuyển khoản an toàn, nhanh chóng</p>
+    <h1 class="text-xl font-bold text-slate-800">{{ 'TRANSFER.TITLE' | translate }}</h1>
+    <p class="text-sm text-slate-500">{{ 'TRANSFER.SUBTITLE' | translate }}</p>
   </div>
 
   <!-- ================= BƯỚC 1: FORM ================= -->
@@ -20,7 +20,7 @@
 
       <!-- Tài khoản nguồn -->
       <div>
-        <label class="mb-1.5 block text-sm font-semibold text-slate-700">Tài khoản nguồn</label>
+        <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'TRANSFER.FROM_ACCOUNT' | translate }}</label>
         <select
           [(ngModel)]="fromAccountId"
           name="fromAccount"
@@ -35,7 +35,7 @@
         </select>
         @if (fromAccount()) {
           <p class="mt-1.5 text-xs text-slate-500">
-            Số dư khả dụng: <b class="text-brand-600">{{ fromAccount()!.balance | number : '1.0-0' }} VND</b>
+            {{ 'TRANSFER.AVAILABLE_BALANCE' | translate }} <b class="text-brand-600">{{ fromAccount()!.balance | number : '1.0-0' }} VND</b>
           </p>
         }
 
@@ -62,7 +62,7 @@
                   class="mt-0.5 h-4 w-4 rounded border-amber-300 text-amber-600 focus:ring-amber-400"
                 />
                 <span>
-                  Tôi hiểu và muốn <b>rút trước hạn (khẩn cấp)</b> — sẽ <b>mất toàn bộ lãi</b> của chu kỳ này. Khoản dư còn lại được gia hạn kỳ hạn mới.
+                  {{ 'TRANSFER.EARLY_NOTE' | translate }}
                 </span>
               </label>
             }
@@ -72,7 +72,7 @@
 
       <!-- Loại chuyển -->
       <div>
-        <label class="mb-1.5 block text-sm font-semibold text-slate-700">Loại chuyển khoản</label>
+        <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'TRANSFER.TYPE' | translate }}</label>
         <div class="grid grid-cols-2 gap-2">
           <button
             type="button"
@@ -84,8 +84,8 @@
             [class.border-slate-200]="transferType() !== 'internal'"
             [class.text-slate-600]="transferType() !== 'internal'"
           >
-            Trong SmartBank
-            <span class="block text-[11px] font-normal text-slate-400">Miễn phí</span>
+            {{ 'TRANSFER.INTERNAL' | translate }}
+            <span class="block text-[11px] font-normal text-slate-400">{{ 'TRANSFER.FREE' | translate }}</span>
           </button>
           <button
             type="button"
@@ -97,8 +97,8 @@
             [class.border-slate-200]="transferType() !== 'interbank'"
             [class.text-slate-600]="transferType() !== 'interbank'"
           >
-            Liên ngân hàng
-            <span class="block text-[11px] font-normal text-slate-400">Phí 5.000đ</span>
+            {{ 'TRANSFER.INTERBANK' | translate }}
+            <span class="block text-[11px] font-normal text-slate-400">{{ 'TRANSFER.FEE_5000' | translate }}</span>
           </button>
         </div>
       </div>
@@ -106,14 +106,14 @@
       <!-- Nội bộ: tra cứu tài khoản nhận -->
       @if (transferType() === 'internal') {
         <div>
-          <label class="mb-1.5 block text-sm font-semibold text-slate-700">Số tài khoản người nhận</label>
+          <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'TRANSFER.RECEIVER_ACCOUNT' | translate }}</label>
           <div class="flex gap-2">
             <input
               type="text"
               [(ngModel)]="receiverAccount"
               name="receiverAccount"
               (blur)="lookupReceiver()"
-              placeholder="Nhập số tài khoản SmartBank"
+              [placeholder]="'TRANSFER.RECEIVER_ACCOUNT_PH' | translate"
               class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 font-mono text-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
             />
             <button
@@ -122,7 +122,7 @@
               [disabled]="resolving()"
               class="shrink-0 rounded-xl bg-gradient-to-r from-brand-600 to-ocean-600 px-4 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
             >
-              {{ resolving() ? 'Đang kiểm tra...' : 'Tra cứu' }}
+              {{ resolving() ? ('TRANSFER.CHECKING' | translate) : ('TRANSFER.LOOKUP' | translate) }}
             </button>
           </div>
           @if (resolveError()) {
@@ -138,7 +138,7 @@
                 <p class="text-xs text-slate-500">{{ resolved()!.accountNumber }}</p>
               </div>
               <span class="ml-auto rounded-full bg-brand-100 px-2 py-0.5 text-[11px] font-semibold text-brand-700">
-                Hợp lệ
+                {{ 'TRANSFER.VALID' | translate }}
               </span>
             </div>
           }
@@ -149,7 +149,7 @@
       @if (transferType() === 'interbank') {
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
-            <label class="mb-1.5 block text-sm font-semibold text-slate-700">Tên người nhận *</label>
+            <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'TRANSFER.RECEIVER_NAME' | translate }}</label>
             <input
               type="text"
               [(ngModel)]="receiverName"
@@ -159,7 +159,7 @@
             />
           </div>
           <div>
-            <label class="mb-1.5 block text-sm font-semibold text-slate-700">Số tài khoản nhận *</label>
+            <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'TRANSFER.RECEIVER_ACCOUNT_LABEL' | translate }}</label>
             <input
               type="text"
               [(ngModel)]="receiverAccount"
@@ -169,7 +169,7 @@
             />
           </div>
           <div>
-            <label class="mb-1.5 block text-sm font-semibold text-slate-700">Mã ngân hàng nhận (BIN) *</label>
+            <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'TRANSFER.BANK_CODE' | translate }}</label>
             <input
               type="text"
               [(ngModel)]="receiverBankCode"
@@ -184,7 +184,7 @@
       <!-- Số tiền -->
       <div class="grid gap-4 sm:grid-cols-2">
         <div>
-          <label class="mb-1.5 block text-sm font-semibold text-slate-700">Số tiền (VND) *</label>
+          <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'TRANSFER.AMOUNT' | translate }}</label>
           <input
             type="number"
             [(ngModel)]="amount"
@@ -195,7 +195,7 @@
           />
         </div>
         <div>
-          <label class="mb-1.5 block text-sm font-semibold text-slate-700">Nội dung chuyển tiền</label>
+          <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'TRANSFER.DESCRIPTION' | translate }}</label>
           <input
             type="text"
             [(ngModel)]="description"
@@ -208,7 +208,7 @@
 
       <!-- Danh mục chi tiêu -->
       <div>
-        <label class="mb-1.5 block text-sm font-semibold text-slate-700">Danh mục chi tiêu</label>
+        <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'TRANSFER.CATEGORY' | translate }}</label>
         <div class="grid grid-cols-2 gap-2 sm:grid-cols-5">
           @for (opt of categoryOptions; track opt.value) {
             <button
@@ -221,7 +221,7 @@
               [class.border-slate-200]="category() !== opt.value"
               [class.text-slate-600]="category() !== opt.value"
             >
-              {{ opt.label }}
+              {{ CATEGORY_KEYS[opt.value] | translate }}
             </button>
           }
         </div>
@@ -230,11 +230,11 @@
       <!-- Tóm tắt phí -->
       <div class="rounded-xl border border-slate-100 bg-slate-50 p-4 text-sm">
         <div class="flex items-center justify-between text-slate-500">
-          <span>Phí giao dịch</span>
+          <span>{{ 'TRANSFER.FEE_LABEL' | translate }}</span>
           <span class="font-semibold text-slate-700">{{ fee() | number : '1.0-0' }} VND</span>
         </div>
         <div class="mt-2 flex items-center justify-between text-slate-500">
-          <span>Tổng tiền bị trừ</span>
+          <span>{{ 'TRANSFER.TOTAL_DEBIT' | translate }}</span>
           <span class="font-semibold text-brand-600">{{ totalDebit() | number : '1.0-0' }} VND</span>
         </div>
       </div>
@@ -244,7 +244,7 @@
           type="submit"
           class="rounded-xl bg-gradient-to-r from-brand-600 to-ocean-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
         >
-          Tiếp tục
+          {{ 'COMMON.CONTINUE' | translate }}
         </button>
       </div>
     </form>
@@ -253,15 +253,15 @@
   <!-- ================= BƯỚC 2: XÁC NHẬN ================= -->
   @if (step() === 'confirm') {
     <div class="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 class="text-base font-bold text-slate-800">Xác nhận thông tin chuyển tiền</h2>
+      <h2 class="text-base font-bold text-slate-800">{{ 'TRANSFER.CONFIRM_TITLE' | translate }}</h2>
 
       <dl class="divide-y divide-slate-100 rounded-xl border border-slate-100 bg-slate-50 text-sm">
         <div class="flex justify-between px-4 py-3">
-          <dt class="text-slate-500">Tài khoản nguồn</dt>
+          <dt class="text-slate-500">{{ 'TRANSFER.FROM_ACCOUNT' | translate }}</dt>
           <dd class="font-semibold text-slate-800">{{ fromAccount()?.accountNumber }}</dd>
         </div>
         <div class="flex justify-between px-4 py-3">
-          <dt class="text-slate-500">Người nhận</dt>
+          <dt class="text-slate-500">{{ 'TRANSFER.RECEIVER' | translate }}</dt>
           <dd class="font-semibold text-slate-800">
             @if (transferType() === 'internal') {
               {{ resolved()?.ownerName }} ({{ resolved()?.accountNumber }})
@@ -271,41 +271,41 @@
           </dd>
         </div>
         <div class="flex justify-between px-4 py-3">
-          <dt class="text-slate-500">Loại chuyển</dt>
+          <dt class="text-slate-500">{{ 'TRANSFER.TYPE_LABEL' | translate }}</dt>
           <dd class="font-semibold text-slate-800">
-            {{ transferType() === 'internal' ? 'Trong SmartBank' : 'Liên ngân hàng' }}
+            {{ transferType() === 'internal' ? ('TRANSFER.INTERNAL' | translate) : ('TRANSFER.INTERBANK' | translate) }}
           </dd>
         </div>
         <div class="flex justify-between px-4 py-3">
-          <dt class="text-slate-500">Danh mục chi tiêu</dt>
+          <dt class="text-slate-500">{{ 'TRANSFER.CATEGORY' | translate }}</dt>
           <dd class="font-semibold text-slate-800">{{ categoryLabel(category()) }}</dd>
         </div>
         <div class="flex justify-between px-4 py-3">
-          <dt class="text-slate-500">Số tiền</dt>
+          <dt class="text-slate-500">{{ 'TRANSFER.COL_AMOUNT' | translate }}</dt>
           <dd class="font-extrabold text-brand-600">{{ amount() | number : '1.0-0' }} VND</dd>
         </div>
         <div class="flex justify-between px-4 py-3">
-          <dt class="text-slate-500">Phí</dt>
+          <dt class="text-slate-500">{{ 'TRANSFER.FEE_LABEL' | translate }}</dt>
           <dd class="font-semibold text-slate-800">{{ fee() | number : '1.0-0' }} VND</dd>
         </div>
         <div class="flex justify-between px-4 py-3">
-          <dt class="text-slate-500">Tổng bị trừ</dt>
+          <dt class="text-slate-500">{{ 'TRANSFER.TOTAL_DEBIT' | translate }}</dt>
           <dd class="font-semibold text-rose-600">{{ totalDebit() | number : '1.0-0' }} VND</dd>
         </div>
         @if (description()) {
           <div class="flex justify-between px-4 py-3">
-            <dt class="text-slate-500">Nội dung</dt>
+            <dt class="text-slate-500">{{ 'TRANSFER.COL_DESC' | translate }}</dt>
             <dd class="font-semibold text-slate-800">{{ description() }}</dd>
           </div>
         }
         @if (sourceIsSavings()) {
           <div class="flex justify-between px-4 py-3">
-            <dt class="text-slate-500">Loại rút tiết kiệm</dt>
+            <dt class="text-slate-500">{{ 'TRANSFER.WITHDRAW_TYPE' | translate }}</dt>
             <dd class="font-semibold text-slate-800">
               @if (sourceMatured()) {
-                <span class="text-emerald-600">Đáo hạn (cộng lãi)</span>
+                <span class="text-emerald-600">{{ 'TRANSFER.WITHDRAW_MATURED' | translate }}</span>
               } @else {
-                <span class="text-amber-600">Rút trước hạn (mất lãi chu kỳ)</span>
+                <span class="text-amber-600">{{ 'TRANSFER.WITHDRAW_EARLY' | translate }}</span>
               }
             </dd>
           </div>
@@ -316,27 +316,6 @@
         <div class="flex items-center gap-2 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{{ error() }}</div>
       }
 
-      <!-- Mật khẩu giao dịch (cấp 2) -->
-      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
-        <label class="mb-1.5 block text-sm font-semibold text-slate-700">
-          Mật khẩu giao dịch (cấp 2) *
-        </label>
-        <input
-          type="password"
-          inputmode="numeric"
-          maxlength="6"
-          pattern="[0-9]*"
-          [(ngModel)]="transactionPassword"
-          name="transactionPassword"
-          placeholder="Nhập 6 chữ số"
-          autocomplete="off"
-          class="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 font-mono text-sm tracking-widest outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
-        />
-        <p class="mt-1.5 text-[11px] text-slate-400">
-          Lớp xác thực thứ 2 bảo vệ giao dịch. Cài đặt tại Tài khoản → Đổi mật khẩu.
-        </p>
-      </div>
-
       <div class="flex items-center justify-end gap-2">
         <button
           type="button"
@@ -344,7 +323,7 @@
           [disabled]="submitting()"
           class="rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-slate-600 ring-1 ring-slate-200 transition hover:bg-slate-50"
         >
-          Quay lại
+          {{ 'COMMON.BACK' | translate }}
         </button>
         <button
           type="button"
@@ -352,7 +331,7 @@
           [disabled]="submitting()"
           class="rounded-xl bg-gradient-to-r from-brand-600 to-ocean-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
         >
-          {{ submitting() ? 'Đang xử lý...' : 'Xác nhận chuyển tiền' }}
+          {{ submitting() ? 'Đang xử lý...' : ('TRANSFER.CONFIRM_BTN' | translate) }}
         </button>
       </div>
     </div>
@@ -367,33 +346,33 @@
         </svg>
       </div>
       <div>
-        <h2 class="text-lg font-bold text-slate-800">Chuyển tiền thành công!</h2>
-        <p class="text-sm text-slate-500">Giao dịch đã được thực hiện.</p>
+        <h2 class="text-lg font-bold text-slate-800">{{ 'TRANSFER.SUCCESS' | translate }}</h2>
+        <p class="text-sm text-slate-500">{{ 'TRANSFER.SUCCESS_DESC' | translate }}</p>
       </div>
 
       <dl class="mx-auto max-w-sm divide-y divide-slate-100 rounded-xl border border-slate-100 bg-slate-50 text-left text-sm">
         <div class="flex justify-between px-4 py-3">
-          <dt class="text-slate-500">Mã giao dịch</dt>
+          <dt class="text-slate-500">{{ 'TRANSFER.TX_CODE' | translate }}</dt>
           <dd class="font-mono font-semibold text-slate-800">{{ result()!.transactionCode }}</dd>
         </div>
         <div class="flex justify-between px-4 py-3">
-          <dt class="text-slate-500">Số tiền</dt>
+          <dt class="text-slate-500">{{ 'TRANSFER.COL_AMOUNT' | translate }}</dt>
           <dd class="font-bold text-brand-600">{{ result()!.amount | number : '1.0-0' }} VND</dd>
         </div>
         <div class="flex justify-between px-4 py-3">
-          <dt class="text-slate-500">Phí</dt>
+          <dt class="text-slate-500">{{ 'TRANSFER.FEE_LABEL' | translate }}</dt>
           <dd class="font-semibold text-slate-800">{{ result()!.fee | number : '1.0-0' }} VND</dd>
         </div>
         <div class="flex justify-between px-4 py-3">
-          <dt class="text-slate-500">Danh mục</dt>
+          <dt class="text-slate-500">{{ 'TRANSFER.COL_CATEGORY' | translate }}</dt>
           <dd class="font-semibold text-slate-800">{{ categoryLabel(result()!.category) }}</dd>
         </div>
         <div class="flex justify-between px-4 py-3">
-          <dt class="text-slate-500">Trạng thái</dt>
+          <dt class="text-slate-500">{{ 'TRANSFER.COL_STATUS' | translate }}</dt>
           <dd class="font-semibold text-emerald-600">{{ statusLabel(result()!.status) }}</dd>
         </div>
         <div class="flex justify-between px-4 py-3">
-          <dt class="text-slate-500">Thời gian</dt>
+          <dt class="text-slate-500">{{ 'TRANSFER.COL_TIME' | translate }}</dt>
           <dd class="font-semibold text-slate-800">{{ result()!.createdDate | date : 'dd/MM/yyyy HH:mm' }}</dd>
         </div>
       </dl>
@@ -403,7 +382,7 @@
         (click)="resetForm()"
         class="rounded-xl bg-gradient-to-r from-brand-600 to-ocean-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
       >
-        Chuyển tiếp giao dịch mới
+        {{ 'TRANSFER.NEW_TX' | translate }}
       </button>
     </div>
   }
@@ -412,31 +391,31 @@
   <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="text-base font-bold text-slate-800">Lịch sử giao dịch</h2>
-        <p class="text-xs text-slate-500">Giao dịch của tài khoản: {{ fromAccount()?.accountNumber ?? '—' }}</p>
+        <h2 class="text-base font-bold text-slate-800">{{ 'TRANSFER.HISTORY' | translate }}</h2>
+        <p class="text-xs text-slate-500">{{ 'TRANSFER.HISTORY_OF' | translate }} {{ fromAccount()?.accountNumber ?? '—' }}</p>
       </div>
-      <span class="rounded-full bg-ocean-50 px-3 py-1 text-xs font-semibold text-ocean-700">{{ history().length }} giao dịch</span>
+      <span class="rounded-full bg-ocean-50 px-3 py-1 text-xs font-semibold text-ocean-700">{{ 'TRANSFER.HISTORY_COUNT' | translate: { count: history().length } }}</span>
     </div>
 
     @if (historyLoading()) {
-      <p class="py-8 text-center text-sm text-slate-400">Đang tải...</p>
+      <p class="py-8 text-center text-sm text-slate-400">{{ 'COMMON.LOADING' | translate }}</p>
     } @else if (history().length === 0) {
       <p class="rounded-xl border border-dashed border-slate-200 py-8 text-center text-sm text-slate-400">
-        Chưa có giao dịch nào.
+        {{ 'TRANSFER.NO_TX' | translate }}
       </p>
     } @else {
       <div class="mt-4 overflow-x-auto">
         <table class="w-full text-left text-sm">
           <thead>
             <tr class="border-b border-slate-100 text-xs uppercase tracking-wider text-slate-400">
-              <th class="py-2.5 pr-3 font-semibold">Mã GD</th>
-              <th class="py-2.5 pr-3 font-semibold">Thời gian</th>
-              <th class="py-2.5 pr-3 font-semibold">Loại</th>
-              <th class="py-2.5 pr-3 font-semibold">Nội dung</th>
-              <th class="py-2.5 pr-3 font-semibold">Người nhận</th>
-              <th class="py-2.5 pr-3 font-semibold">Danh mục</th>
-              <th class="py-2.5 pr-3 text-right font-semibold">Số tiền</th>
-              <th class="py-2.5 font-semibold">Trạng thái</th>
+              <th class="py-2.5 pr-3 font-semibold">{{ 'TRANSFER.COL_CODE' | translate }}</th>
+              <th class="py-2.5 pr-3 font-semibold">{{ 'TRANSFER.COL_TIME' | translate }}</th>
+              <th class="py-2.5 pr-3 font-semibold">{{ 'TRANSFER.COL_TYPE' | translate }}</th>
+              <th class="py-2.5 pr-3 font-semibold">{{ 'TRANSFER.COL_DESC' | translate }}</th>
+              <th class="py-2.5 pr-3 font-semibold">{{ 'TRANSFER.COL_RECEIVER' | translate }}</th>
+              <th class="py-2.5 pr-3 font-semibold">{{ 'TRANSFER.COL_CATEGORY' | translate }}</th>
+              <th class="py-2.5 pr-3 text-right font-semibold">{{ 'TRANSFER.COL_AMOUNT' | translate }}</th>
+              <th class="py-2.5 font-semibold">{{ 'TRANSFER.COL_STATUS' | translate }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-50">

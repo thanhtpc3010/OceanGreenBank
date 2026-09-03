@@ -4,16 +4,19 @@ import { RouterLink } from '@angular/router';
 
 import { ConfirmService } from '../../core/services/confirm.service';
 import { KnowledgeService, KnowledgeEntry } from '../../core/services/knowledge.service';
+import { LanguageService } from '../../core/i18n/language.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-admin-knowledge',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, TranslatePipe],
   templateUrl: './admin-knowledge.component.html',
   styleUrl: './admin-knowledge.component.scss',
 })
 export class AdminKnowledgeComponent implements OnInit {
   private readonly svc = inject(KnowledgeService);
   private readonly confirmService = inject(ConfirmService);
+  private readonly language = inject(LanguageService);
 
   protected readonly loading = signal(true);
   protected readonly error = signal('');
@@ -88,7 +91,7 @@ export class AdminKnowledgeComponent implements OnInit {
     this.error.set('');
     this.success.set('');
     if (!this.form.title.trim() || !this.form.content.trim() || !this.form.keywords.trim()) {
-      this.error.set('Vui lòng nhập đầy đủ: từ khóa, tiêu đề và nội dung.');
+      this.error.set(this.language.t('KNOWLEDGE.ERR_REQUIRED'));
       return;
     }
 
@@ -102,10 +105,10 @@ export class AdminKnowledgeComponent implements OnInit {
       };
       if (this.editingId()) {
         await this.svc.update(this.editingId()!, payload);
-        this.success.set('Đã cập nhật mục kiến thức.');
+        this.success.set(this.language.t('KNOWLEDGE.UPDATED'));
       } else {
         await this.svc.create(payload);
-        this.success.set('Đã thêm mục kiến thức. Bot sẽ dùng ngay cho câu hỏi liên quan.');
+        this.success.set(this.language.t('KNOWLEDGE.CREATED'));
       }
       this.closeForm();
       await this.reload();
@@ -118,15 +121,15 @@ export class AdminKnowledgeComponent implements OnInit {
 
   protected async remove(e: KnowledgeEntry): Promise<void> {
     const ok = await this.confirmService.confirm({
-      title: 'Xóa mục kiến thức',
-      message: `Xóa "${e.title}"? Bot sẽ không còn dùng kiến thức này để trả lời.`,
-      confirmText: 'Xóa',
+      title: this.language.t('KNOWLEDGE.DELETE_TITLE'),
+      message: this.language.t('KNOWLEDGE.DELETE_MSG', { title: e.title }),
+      confirmText: this.language.t('COMMON.DELETE'),
       danger: true,
     });
     if (!ok) return;
     try {
       await this.svc.remove(e.id);
-      this.success.set('Đã xóa mục kiến thức.');
+      this.success.set(this.language.t('KNOWLEDGE.DELETED'));
       await this.reload();
     } catch (err) {
       this.error.set(this.extractError(err));
@@ -149,6 +152,6 @@ export class AdminKnowledgeComponent implements OnInit {
 
   private extractError(e: unknown): string {
     const body = (e as { error?: { message?: string } })?.error;
-    return body?.message ?? (e instanceof Error ? e.message : 'Có lỗi xảy ra. Vui lòng thử lại.');
+    return body?.message ?? (e instanceof Error ? e.message : this.language.t('KNOWLEDGE.ERR_DEFAULT'));
   }
 }

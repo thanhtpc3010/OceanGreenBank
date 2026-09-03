@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { ConfirmService } from '../../core/services/confirm.service';
+import { LanguageService } from '../../core/i18n/language.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { UserService } from '../../core/services/user.service';
 
 @Component({
   selector: 'app-account',
-  imports: [DecimalPipe, RouterLink, FormsModule],
+  imports: [DecimalPipe, RouterLink, FormsModule, TranslatePipe],
   templateUrl: './account.component.html',
   styleUrl: './account.component.scss',
 })
@@ -16,6 +18,7 @@ export class AccountComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private readonly confirmService = inject(ConfirmService);
+  private readonly language = inject(LanguageService);
 
   protected readonly deleting = signal(false);
 
@@ -33,7 +36,7 @@ export class AccountComponent implements OnInit {
   protected readonly accounts = this.userService.accounts;
   protected readonly loading = this.userService.loading;
 
-  protected readonly fullName = computed(() => this.profile()?.fullName ?? 'Người dùng');
+  protected readonly fullName = computed(() => this.profile()?.fullName ?? this.language.t('COMMON.USER_FALLBACK'));
   protected readonly email = computed(() => this.profile()?.email ?? '');
   protected readonly phone = computed(() => this.profile()?.phone ?? '');
   protected readonly identityCard = computed(() => this.profile()?.identityCard ?? '');
@@ -119,9 +122,9 @@ export class AccountComponent implements OnInit {
   /** Xóa 1 tài khoản (có popup xác nhận chung). */
   protected async removeAccount(id: string): Promise<void> {
     const ok = await this.confirmService.confirm({
-      title: 'Xóa tài khoản ngân hàng',
-      message: 'Bạn có chắc muốn xóa tài khoản này? Hành động không thể hoàn tác.',
-      confirmText: 'Xóa',
+      title: this.language.t('ACCOUNT.DELETE_ACCOUNT_TITLE'),
+      message: this.language.t('ACCOUNT.DELETE_ACCOUNT_MSG'),
+      confirmText: this.language.t('COMMON.DELETE'),
       danger: true,
     });
     if (!ok) return;
@@ -131,9 +134,9 @@ export class AccountComponent implements OnInit {
   /** Xóa toàn bộ tài khoản người dùng → đăng xuất (có popup xác nhận chung). */
   protected async deleteUser(): Promise<void> {
     const ok = await this.confirmService.confirm({
-      title: 'Xóa tài khoản của tôi',
-      message: 'Toàn bộ hồ sơ, tài khoản ngân hàng và dữ liệu liên quan sẽ bị xóa vĩnh viễn. Bạn chắc chắn chứ?',
-      confirmText: 'Xóa vĩnh viễn',
+      title: this.language.t('ACCOUNT.DELETE_MINE'),
+      message: this.language.t('ACCOUNT.DELETE_USER_MSG'),
+      confirmText: this.language.t('ACCOUNT.DELETE_PERMANENT'),
       danger: true,
     });
     if (!ok) return;

@@ -21,9 +21,9 @@ export interface SavingsPlanDto {
 }
 
 export const CYCLE_OPTIONS = [
-  { value: 'DAILY', label: 'Hằng ngày' },
-  { value: 'WEEKLY', label: 'Hằng tuần' },
-  { value: 'MONTHLY', label: 'Hằng tháng' },
+  { value: 'DAILY', key: 'SAVINGS.CYCLE_DAILY', label: 'Hằng ngày' },
+  { value: 'WEEKLY', key: 'SAVINGS.CYCLE_WEEKLY', label: 'Hằng tuần' },
+  { value: 'MONTHLY', key: 'SAVINGS.CYCLE_MONTHLY', label: 'Hằng tháng' },
 ];
 
 /**

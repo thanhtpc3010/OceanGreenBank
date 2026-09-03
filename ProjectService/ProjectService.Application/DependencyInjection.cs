@@ -24,11 +24,15 @@ public static class DependencyInjection
         services.AddScoped<IUserCommandService, UserCommand>();
         services.AddScoped<IAccountCommandService, AccountCommand>();
         services.AddScoped<ITransactionCommandService, TransactionCommand>();
+        services.AddScoped<IPaymentCommandService, PaymentCommand>();
+        services.AddScoped<IDonationCommandService, DonationCommand>();
 
         // Query Services (Read side)
         services.AddScoped<IUserQueryService, UserQuery>();
         services.AddScoped<IAccountQueryService, AccountQuery>();
         services.AddScoped<ITransactionQueryService, TransactionQuery>();
+        services.AddScoped<IPaymentQueryService, PaymentQuery>();
+        services.AddScoped<IDonationQueryService, DonationQuery>();
 
         // Dịch vụ AutoEarn (sinh lời tự động)
         services.AddScoped<IAutoEarnService, AutoEarnService>();

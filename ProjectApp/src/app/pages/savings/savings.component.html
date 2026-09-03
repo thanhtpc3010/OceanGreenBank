@@ -2,11 +2,11 @@
   <!-- Header -->
   <div class="flex flex-wrap items-center justify-between gap-3">
     <div>
-      <h1 class="text-xl font-bold text-slate-800">Sổ tiết kiệm theo chu kỳ</h1>
-      <p class="text-sm text-slate-500">Tự động trích tiền vào tài khoản tiết kiệm đều đặn mỗi kỳ</p>
+      <h1 class="text-xl font-bold text-slate-800">{{ 'SAVINGS.TITLE' | translate }}</h1>
+      <p class="text-sm text-slate-500">{{ 'SAVINGS.SUBTITLE' | translate }}</p>
     </div>
     <div class="rounded-xl bg-gradient-to-br from-brand-50 to-ocean-50 px-4 py-2 text-right">
-      <p class="text-[11px] font-medium text-slate-500">Tổng tiền đã tiết kiệm</p>
+      <p class="text-[11px] font-medium text-slate-500">{{ 'SAVINGS.TOTAL_SAVED' | translate }}</p>
       <p class="text-lg font-extrabold text-brand-600">{{ totalPlan() | number : '1.0-0' }} VND</p>
     </div>
   </div>
@@ -26,11 +26,11 @@
 
   <!-- ============ FORM TẠO KẾ HOẠCH ============ -->
   <form (ngSubmit)="createPlan()" class="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-    <h2 class="text-base font-bold text-slate-800">Tạo kế hoạch gửi tiết kiệm</h2>
+    <h2 class="text-base font-bold text-slate-800">{{ 'SAVINGS.CREATE_TITLE' | translate }}</h2>
 
     <div class="grid gap-4 sm:grid-cols-2">
       <div>
-        <label class="mb-1.5 block text-sm font-semibold text-slate-700">Tài khoản nguồn (trích tiền)</label>
+        <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'SAVINGS.SOURCE' | translate }}</label>
         <select
           [(ngModel)]="sourceAccountId"
           name="source"
@@ -43,7 +43,7 @@
         </select>
       </div>
       <div>
-        <label class="mb-1.5 block text-sm font-semibold text-slate-700">Tài khoản tiết kiệm đích</label>
+        <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'SAVINGS.TARGET' | translate }}</label>
         <select
           [(ngModel)]="targetAccountId"
           name="target"
@@ -54,11 +54,11 @@
           }
         </select>
         @if (targetAccounts().length === 0) {
-          <p class="mt-1.5 text-xs text-rose-500">Bạn cần thêm ít nhất 1 tài khoản khác để làm sổ tiết kiệm đích.</p>
+          <p class="mt-1.5 text-xs text-rose-500">{{ 'SAVINGS.NEED_TARGET' | translate }}</p>
         }
       </div>
       <div>
-        <label class="mb-1.5 block text-sm font-semibold text-slate-700">Số tiền gửi mỗi kỳ (VND) *</label>
+        <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'SAVINGS.AMOUNT' | translate }}</label>
         <input
           type="number"
           [(ngModel)]="amount"
@@ -69,7 +69,7 @@
         />
       </div>
       <div>
-        <label class="mb-1.5 block text-sm font-semibold text-slate-700">Chu kỳ gửi</label>
+        <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'SAVINGS.CYCLE' | translate }}</label>
         <div class="grid grid-cols-3 gap-2">
           @for (opt of cycleOptions; track opt.value) {
             <button
@@ -82,13 +82,13 @@
               [class.border-slate-200]="cycle() !== opt.value"
               [class.text-slate-600]="cycle() !== opt.value"
             >
-              {{ opt.label }}
+              {{ opt.key | translate }}
             </button>
           }
         </div>
       </div>
       <div class="sm:col-span-2">
-        <label class="mb-1.5 block text-sm font-semibold text-slate-700">Ngày bắt đầu</label>
+        <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'SAVINGS.START_DATE' | translate }}</label>
         <input
           type="date"
           [(ngModel)]="startDate"
@@ -104,7 +104,7 @@
         [disabled]="saving()"
         class="rounded-xl bg-gradient-to-r from-brand-600 to-ocean-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
       >
-        {{ saving() ? 'Đang tạo...' : 'Tạo kế hoạch' }}
+        {{ saving() ? ('SAVINGS.CREATING' | translate) : ('SAVINGS.CREATE' | translate) }}
       </button>
     </div>
   </form>
@@ -112,17 +112,17 @@
   <!-- ============ DANH SÁCH KẾ HOẠCH ============ -->
   <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
     <div class="flex items-center justify-between">
-      <h2 class="text-base font-bold text-slate-800">Kế hoạch của bạn</h2>
+      <h2 class="text-base font-bold text-slate-800">{{ 'SAVINGS.YOUR_PLANS' | translate }}</h2>
       <span class="rounded-full bg-ocean-50 px-3 py-1 text-xs font-semibold text-ocean-700">
-        {{ plans().filter((p) => p.isActive).length }} đang hoạt động
+        {{ plans().filter((p) => p.isActive).length }} {{ 'SAVINGS.ACTIVE' | translate }}
       </span>
     </div>
 
     @if (loading()) {
-      <p class="py-8 text-center text-sm text-slate-400">Đang tải...</p>
+      <p class="py-8 text-center text-sm text-slate-400">{{ 'COMMON.LOADING' | translate }}</p>
     } @else if (plans().length === 0) {
       <p class="rounded-xl border border-dashed border-slate-200 py-8 text-center text-sm text-slate-400">
-        Chưa có kế hoạch tiết kiệm nào. Tạo kế hoạch đầu tiên ở trên nhé!
+        {{ 'SAVINGS.NO_PLANS' | translate }}
       </p>
     } @else {
       <div class="mt-4 space-y-3">
@@ -160,7 +160,7 @@
 
             <div class="flex items-center gap-2">
               <div class="text-right text-xs text-slate-500">
-                <p>Kỳ tới: <b class="text-slate-700">{{ formatDate(plan.nextDepositDate) }}</b></p>
+                <p>{{ 'SAVINGS.NEXT_CYCLE' | translate }} <b class="text-slate-700">{{ formatDate(plan.nextDepositDate) }}</b></p>
                 <p class="mt-0.5">
                   <span
                     class="rounded-full px-2 py-0.5 text-[11px] font-semibold"
@@ -169,7 +169,7 @@
                     [class.bg-slate-200]="!plan.isActive"
                     [class.text-slate-500]="!plan.isActive"
                   >
-                    {{ plan.isActive ? 'Hoạt động' : 'Đã hủy' }}
+                    {{ plan.isActive ? ('ACCOUNT.ACTIVE' | translate) : ('SAVINGS.CANCELLED' | translate) }}
                   </span>
                 </p>
               </div>
@@ -179,14 +179,14 @@
                   (click)="depositNow(plan)"
                   class="rounded-xl bg-gradient-to-r from-brand-600 to-ocean-600 px-3.5 py-2 text-xs font-semibold text-white transition hover:opacity-90"
                 >
-                  Gửi ngay
+                  {{ 'SAVINGS.DEPOSIT_NOW' | translate }}
                 </button>
                 <button
                   type="button"
                   (click)="cancelPlan(plan)"
                   class="rounded-xl bg-white px-3.5 py-2 text-xs font-semibold text-rose-600 ring-1 ring-slate-200 transition hover:bg-rose-50"
                 >
-                  Hủy
+                  {{ 'COMMON.CANCEL' | translate }}
                 </button>
               }
             </div>

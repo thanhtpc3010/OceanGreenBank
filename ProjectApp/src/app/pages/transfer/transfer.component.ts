@@ -2,20 +2,25 @@ import { DecimalPipe, DatePipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { TransactionService, TxStatus, TxType, TransactionDto, ReceiverInfo, TxCategory, CATEGORY_OPTIONS } from '../../core/services/transaction.service';
+import { TransactionService, TxStatus, TxType, TransactionDto, ReceiverInfo, TxCategory, CATEGORY_OPTIONS, CATEGORY_KEYS } from '../../core/services/transaction.service';
+import { TransactionPasswordService } from '../../core/services/transaction-password.service';
+import { LanguageService } from '../../core/i18n/language.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { UserService, BankAccount } from '../../core/services/user.service';
 
 type Step = 'form' | 'confirm' | 'result';
 
 @Component({
   selector: 'app-transfer',
-  imports: [FormsModule, DecimalPipe, DatePipe],
+  imports: [FormsModule, DecimalPipe, DatePipe, TranslatePipe],
   templateUrl: './transfer.component.html',
   styleUrl: './transfer.component.scss',
 })
 export class TransferComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly txService = inject(TransactionService);
+  private readonly txPasswordService = inject(TransactionPasswordService);
+  private readonly language = inject(LanguageService);
 
   protected readonly step = signal<Step>('form');
   protected readonly submitting = signal(false);
@@ -32,8 +37,8 @@ export class TransferComponent implements OnInit {
   protected readonly description = signal('');
   protected readonly category = signal<TxCategory>(TxCategory.Other);
   protected readonly categoryOptions = CATEGORY_OPTIONS;
+  protected readonly CATEGORY_KEYS = CATEGORY_KEYS;
   protected readonly isEarlyWithdrawal = signal(false);
-  protected readonly transactionPassword = signal('');
 
   /* ---- Trạng thái tra cứu người nhận ---- */
   protected readonly resolved = signal<ReceiverInfo | null>(null);
@@ -106,9 +111,9 @@ export class TransferComponent implements OnInit {
     try {
       const found = await this.txService.findAccountByNumber(number);
       if (!found) {
-        this.resolveError.set('Không tìm thấy tài khoản nhận. Vui lòng kiểm tra lại số tài khoản.');
+        this.resolveError.set(this.language.t('TRANSFER.ERR_RECEIVER_NOT_FOUND'));
       } else if (found.accountId === this.fromAccountId()) {
-        this.resolveError.set('Không thể chuyển tiền vào chính tài khoản của bạn.');
+        this.resolveError.set(this.language.t('TRANSFER.ERR_SELF'));
       } else {
         this.resolved.set(found);
       }
@@ -123,18 +128,21 @@ export class TransferComponent implements OnInit {
     this.success.set('');
 
     if (!this.fromAccountId()) {
-      this.error.set('Vui lòng chọn tài khoản nguồn.');
+      this.error.set(this.language.t('ERR.NO_ACCOUNT'));
       return;
     }
     const amount = this.amount() ?? 0;
     if (amount <= 0) {
-      this.error.set('Số tiền phải lớn hơn 0.');
+      this.error.set(this.language.t('ERR.AMOUNT'));
       return;
     }
     const acc = this.fromAccount();
     if (acc && acc.balance < this.totalDebit()) {
       this.error.set(
-        `Số dư không đủ. Bạn cần ${this.totalDebit().toLocaleString('vi-VN')} VND (gồm phí) nhưng chỉ có ${acc.balance.toLocaleString('vi-VN')} VND.`,
+        this.language.t('TRANSFER.ERR_BALANCE', {
+          need: this.totalDebit().toLocaleString('vi-VN'),
+          have: acc.balance.toLocaleString('vi-VN'),
+        }),
       );
       return;
     }
@@ -142,23 +150,23 @@ export class TransferComponent implements OnInit {
     // Tài khoản tiết kiệm: chưa đáo hạn → bắt buộc xác nhận rút trước hạn.
     if (this.sourceIsSavings() && !this.sourceMatured() && !this.isEarlyWithdrawal()) {
       this.error.set(
-        `Tài khoản tiết kiệm chưa đáo hạn (${this.sourceMaturityLabel()}). Chỉ được rút khi hết kỳ hạn, hoặc đánh dấu “Rút trước hạn” (mất toàn bộ lãi chu kỳ).`,
+        this.language.t('TRANSFER.ERR_NOT_MATURED', { date: this.sourceMaturityLabel() }),
       );
       return;
     }
 
     if (this.transferType() === 'internal') {
       if (!this.receiverAccount().trim()) {
-        this.error.set('Vui lòng nhập số tài khoản nhận.');
+        this.error.set(this.language.t('TRANSFER.ERR_RECEIVER_REQUIRED'));
         return;
       }
       if (!this.resolved()) {
-        this.error.set('Vui lòng xác nhận tài khoản nhận hợp lệ trước khi tiếp tục.');
+        this.error.set(this.language.t('TRANSFER.ERR_RESOLVE_REQUIRED'));
         return;
       }
     } else {
       if (!this.receiverName().trim() || !this.receiverAccount().trim() || !this.receiverBankCode().trim()) {
-        this.error.set('Vui lòng nhập đầy đủ thông tin người nhận (tên, số tài khoản, mã ngân hàng).');
+        this.error.set(this.language.t('TRANSFER.ERR_RECEIVER_INFO'));
         return;
       }
     }
@@ -168,6 +176,15 @@ export class TransferComponent implements OnInit {
 
   /** Gọi API chuyển tiền. */
   protected async confirmTransfer(): Promise<void> {
+    // Mở popup nhập mật khẩu giao dịch (dùng chung toàn app).
+    const password = await this.txPasswordService.ask({
+      message: this.language.t('TRANSFER.ASK_MSG', {
+        amount: (this.amount() ?? 0).toLocaleString('vi-VN'),
+        account: this.fromAccount()?.accountNumber ?? '',
+      }),
+    });
+    if (password === null) return; // user hủy
+
     this.submitting.set(true);
     this.error.set('');
     try {
@@ -183,7 +200,7 @@ export class TransferComponent implements OnInit {
         receiverName: isInternal ? (this.resolved()?.ownerName ?? undefined) : this.receiverName().trim(),
         receiverBankCode: isInternal ? undefined : this.receiverBankCode().trim(),
         isEarlyWithdrawal: this.isEarlyWithdrawal(),
-        transactionPassword: this.transactionPassword(),
+        transactionPassword: password,
       });
       this.result.set(tx);
       this.step.set('result');
@@ -212,7 +229,6 @@ export class TransferComponent implements OnInit {
     this.description.set('');
     this.category.set(TxCategory.Other);
     this.isEarlyWithdrawal.set(false);
-    this.transactionPassword.set('');
   }
 
   /** Tải lịch sử giao dịch của tài khoản. */
@@ -235,19 +251,25 @@ export class TransferComponent implements OnInit {
   }
 
   protected statusLabel(s: TxStatus): string {
-    return s === TxStatus.Success ? 'Thành công' : s === TxStatus.Pending ? 'Chờ xử lý' : 'Thất bại';
+    return s === TxStatus.Success
+      ? this.language.t('TRANSFER.STATUS_SUCCESS')
+      : s === TxStatus.Pending
+        ? this.language.t('TRANSFER.STATUS_PENDING')
+        : this.language.t('TRANSFER.STATUS_FAILED');
   }
 
   protected categoryLabel(c: TxCategory): string {
-    return CATEGORY_OPTIONS.find((o) => o.value === c)?.label ?? 'Khác';
+    return this.language.t(CATEGORY_KEYS[c] ?? 'CATEGORY.OTHER');
   }
 
   protected typeLabel(t: TxType): string {
-    return t === TxType.InternalTransfer ? 'Nội bộ' : 'Liên ngân hàng';
+    return t === TxType.InternalTransfer
+      ? this.language.t('TRANSFER.INTERNAL')
+      : this.language.t('TRANSFER.INTERBANK');
   }
 
   private extractError(e: unknown): string {
     const body = (e as { error?: { message?: string } })?.error;
-    return body?.message ?? (e instanceof Error ? e.message : 'Chuyển tiền thất bại. Vui lòng thử lại.');
+    return body?.message ?? (e instanceof Error ? e.message : this.language.t('TRANSFER.ERR_DEFAULT'));
   }
 }

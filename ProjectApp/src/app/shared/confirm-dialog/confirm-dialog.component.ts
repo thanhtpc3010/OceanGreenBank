@@ -1,10 +1,11 @@
 import { Component, inject } from '@angular/core';
 
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { ConfirmService } from '../../core/services/confirm.service';
 
 @Component({
   selector: 'app-confirm-dialog',
-  imports: [],
+  imports: [TranslatePipe],
   templateUrl: './confirm-dialog.component.html',
   styleUrl: './confirm-dialog.component.scss',
 })

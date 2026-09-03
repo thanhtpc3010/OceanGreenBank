@@ -20,7 +20,8 @@ public sealed record CreateTransactionCommand(
     string? ReceiverBankCode,
     TransactionCategory Category = TransactionCategory.Other,
     bool IsEarlyWithdrawal = false,
-    string? TransactionPassword = null) : BaseCommand<TransactionDto>;
+    string? TransactionPassword = null,
+    decimal? Fee = null) : BaseCommand<TransactionDto>;
 
 public sealed record CancelTransactionCommand(string TransactionId) : BaseCommand<Unit>;
 
@@ -120,7 +121,9 @@ public class TransactionCommand :
             // Rút trước hạn (IsEarlyWithdrawal): KHÔNG cộng lãi → mất toàn bộ lãi chu kỳ.
         }
 
-        var fee = request.Type == TransactionType.InterbankTransfer ? 5000m : 0m;
+        // Phí mặc định: 5.000đ cho liên ngân hàng, 0đ cho nội bộ.
+        // Cho phép ghi đè (vd: ủng hộ từ thiện miễn phí).
+        var fee = request.Fee ?? (request.Type == TransactionType.InterbankTransfer ? 5000m : 0m);
         var totalDebit = request.Amount + fee;
 
         if (fromAccount.Balance < totalDebit)

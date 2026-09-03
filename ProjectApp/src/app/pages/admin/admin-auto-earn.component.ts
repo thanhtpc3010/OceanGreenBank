@@ -8,15 +8,18 @@ import {
   AutoEarnLog,
   AutoEarnAccountAdmin,
 } from '../../core/services/auto-earn.service';
+import { LanguageService } from '../../core/i18n/language.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 @Component({
   selector: 'app-admin-auto-earn',
-  imports: [FormsModule, DecimalPipe, RouterLink],
+  imports: [FormsModule, DecimalPipe, RouterLink, TranslatePipe],
   templateUrl: './admin-auto-earn.component.html',
   styleUrl: './admin-auto-earn.component.scss',
 })
 export class AdminAutoEarnComponent implements OnInit {
   private readonly svc = inject(AutoEarnService);
+  private readonly language = inject(LanguageService);
 
   protected readonly loading = signal(true);
   protected readonly error = signal('');
@@ -75,7 +78,7 @@ export class AdminAutoEarnComponent implements OnInit {
       this.lastRunAt.set(s.lastRunAt);
       this.nextRunAt.set(s.nextRunAt);
       this.success.set(
-        `Đã lưu cấu hình. Job sẽ chạy tự động mỗi ngày lúc ${s.runTime} (giờ VN).`,
+        this.language.t('AUTO_EARN.SAVE_SUCCESS', { time: s.runTime }),
       );
     } catch (e) {
       this.error.set(this.extractError(e));
@@ -93,7 +96,7 @@ export class AdminAutoEarnComponent implements OnInit {
       const s = await this.svc.runNow();
       this.lastRunAt.set(s.lastRunAt);
       this.nextRunAt.set(s.nextRunAt);
-      this.success.set('Đã chạy job sinh lời. Xem nhật ký bên dưới.');
+      this.success.set(this.language.t('AUTO_EARN.RUN_SUCCESS'));
       this.logs.set(await this.svc.getLogs());
       this.accounts.set(await this.svc.getAccounts());
     } catch (e) {
@@ -114,7 +117,7 @@ export class AdminAutoEarnComponent implements OnInit {
         ),
       );
       this.success.set(
-        `Đã ${enabled ? 'đăng ký' : 'hủy đăng ký'} tài khoản ${acc.accountNumber} tham gia AutoEarn.`,
+        this.language.t(enabled ? 'AUTO_EARN.ENROLLED' : 'AUTO_EARN.UNENROLLED', { acc: acc.accountNumber }),
       );
     } catch (e) {
       this.error.set(this.extractError(e));
@@ -125,7 +128,7 @@ export class AdminAutoEarnComponent implements OnInit {
   protected async savePrincipal(acc: AutoEarnAccountAdmin): Promise<void> {
     try {
       await this.svc.updateAccountEnrollment(acc.accountId, acc.isEnrolled, acc.principal);
-      this.success.set(`Đã cập nhật tiền gốc tài khoản ${acc.accountNumber}.`);
+      this.success.set(this.language.t('AUTO_EARN.PRINCIPAL_SAVED', { acc: acc.accountNumber }));
     } catch (e) {
       this.error.set(this.extractError(e));
     }
@@ -141,6 +144,6 @@ export class AdminAutoEarnComponent implements OnInit {
 
   private extractError(e: unknown): string {
     const body = (e as { error?: { message?: string } })?.error;
-    return body?.message ?? (e instanceof Error ? e.message : 'Có lỗi xảy ra. Vui lòng thử lại.');
+    return body?.message ?? (e instanceof Error ? e.message : this.language.t('AUTO_EARN.ERR_DEFAULT'));
   }
 }

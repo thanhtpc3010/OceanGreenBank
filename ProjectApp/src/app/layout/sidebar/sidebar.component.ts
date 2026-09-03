@@ -3,6 +3,7 @@ import { Component, computed, EventEmitter, inject, Input, Output } from '@angul
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import { AuthService } from '../../core/auth/auth.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -19,7 +20,7 @@ export interface NavItem {
 
 @Component({
   selector: 'app-sidebar',
-  imports: [RouterLink, RouterLinkActive, NgTemplateOutlet, TagModule, ButtonModule],
+  imports: [RouterLink, RouterLinkActive, NgTemplateOutlet, TagModule, ButtonModule, TranslatePipe],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
 })
@@ -33,17 +34,19 @@ export class SidebarComponent {
   protected readonly isAdmin = computed(() => this.auth.hasPermission('USER.READ'));
 
   protected readonly allNavItems: NavItem[] = [
-    { label: 'Dashboard', icon: 'dashboard', href: '/dashboard' },
-    { label: 'Tài khoản', icon: 'account', href: '/account' },
-    { label: 'Chuyển tiền', icon: 'transfer', href: '/transfer' },
-    { label: 'Giao dịch', icon: 'history', href: '/transactions' },
-    { label: 'Tiết kiệm', icon: 'savings', href: '/savings' },
-    { label: 'Quản lý User', icon: 'users', href: '/admin/users', adminOnly: true },
-    { label: 'AutoEarn', icon: 'autoearn', href: '/admin/auto-earn', adminOnly: true },
-    { label: 'Train AI', icon: 'bot', href: '/admin/knowledge', adminOnly: true },
-    { label: 'Ủng hộ MTTQ', icon: 'donate', comingSoon: true },
-    { label: 'PFM AI Bot', icon: 'bot', comingSoon: true },
-    { label: 'Dịch vụ khác', icon: 'services', comingSoon: true },
+    { label: 'SIDEBAR.DASHBOARD', icon: 'dashboard', href: '/dashboard' },
+    { label: 'SIDEBAR.ACCOUNT', icon: 'account', href: '/account' },
+    { label: 'SIDEBAR.TRANSFER', icon: 'transfer', href: '/transfer' },
+    { label: 'SIDEBAR.DEPOSIT', icon: 'deposit', href: '/deposit' },
+    { label: 'SIDEBAR.TRANSACTIONS', icon: 'history', href: '/transactions' },
+    { label: 'SIDEBAR.SAVINGS', icon: 'savings', href: '/savings' },
+    { label: 'SIDEBAR.DONATE', icon: 'donate', href: '/donate' },
+    { label: 'SIDEBAR.ADMIN_USERS', icon: 'users', href: '/admin/users', adminOnly: true },
+    { label: 'SIDEBAR.AUTO_EARN', icon: 'autoearn', href: '/admin/auto-earn', adminOnly: true },
+    { label: 'SIDEBAR.TRAIN_AI', icon: 'bot', href: '/admin/knowledge', adminOnly: true },
+    { label: 'SIDEBAR.TRANSLATIONS', icon: 'bot', href: '/admin/translations', adminOnly: true },
+    { label: 'SIDEBAR.PFM_AI_BOT', icon: 'bot', comingSoon: true },
+    { label: 'SIDEBAR.OTHER_SERVICES', icon: 'services', comingSoon: true },
   ];
 
   protected readonly navItems = computed(() =>

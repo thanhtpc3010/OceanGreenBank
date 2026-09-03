@@ -32,49 +32,113 @@
   <div class="hidden items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 backdrop-blur sm:flex">
     <i class="pi pi-wallet text-ocean-200"></i>
     <div class="text-right leading-tight">
-      <p class="text-[11px] text-ocean-100">Số dư tài khoản</p>
+      <p class="text-[11px] text-ocean-100">{{ 'HEADER.BALANCE' | translate }}</p>
       <p class="text-sm font-bold">{{ balance() | number : '1.0-0' }} VND</p>
     </div>
   </div>
 
-  <!-- Notification -->
-  <p-button
-    icon="pi pi-bell"
-    [text]="true"
-    [rounded]="true"
-    styleClass="relative !text-white hover:!bg-white/15"
-    ariaLabel="Thông báo"
-    pTooltip="Thông báo"
+  <!-- Chuyển ngôn ngữ -->
+  <button
+    type="button"
+    (click)="toggleLanguage()"
+    class="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-xs font-bold text-white transition hover:bg-white/15"
+    [pTooltip]="currentLang() === 'vi' ? 'English' : 'Tiếng Việt'"
     tooltipPosition="bottom"
+    aria-label="Language"
   >
-    @if (notificationCount() > 0) {
-      <p-badge
-        [value]="notificationCount()"
-        severity="danger"
-        styleClass="absolute -right-1 -top-1 !text-[10px]"
-      />
+    <img
+      [src]="currentLang() === 'vi' ? 'assets/flags/gb.svg' : 'assets/flags/vn.svg'"
+      alt=""
+      class="h-3.5 w-5 shrink-0 rounded-[2px] object-cover shadow ring-1 ring-white/40"
+    />
+    {{ currentLang() === 'vi' ? 'EN' : 'VI' }}
+  </button>
+
+  <!-- Notification: lịch sử giao dịch gần đây -->
+  <div class="relative">
+    <p-button
+      icon="pi pi-bell"
+      [text]="true"
+      [rounded]="true"
+      styleClass="relative !text-white hover:!bg-white/15"
+      ariaLabel="{{ 'HEADER.NOTIFICATIONS' | translate }}"
+      pTooltip="{{ 'HEADER.NOTIFICATIONS' | translate }}"
+      tooltipPosition="bottom"
+      (onClick)="toggleNotifications()"
+    >
+      @if (notificationCount() > 0) {
+        <p-badge
+          [value]="notificationCount()"
+          severity="danger"
+          styleClass="absolute -right-1 -top-1 !text-[10px]"
+        />
+      }
+    </p-button>
+
+    @if (showNotif()) {
+      <div
+        class="absolute right-0 top-12 z-50 w-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+          <p class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.RECENT_TX' | translate }}</p>
+          <a
+            routerLink="/transactions"
+            (click)="showNotif.set(false)"
+            class="text-xs font-semibold text-brand-600 hover:underline"
+          >
+            {{ 'DASHBOARD.VIEW_ALL' | translate }}
+          </a>
+        </div>
+
+        <div class="max-h-80 overflow-y-auto">
+          @if (notifLoading()) {
+            <p class="px-4 py-6 text-center text-xs text-slate-400">{{ 'TRANSACTIONS.LOADING' | translate }}</p>
+          } @else if (notifications().length === 0) {
+            <p class="px-4 py-6 text-center text-xs text-slate-400">{{ 'TRANSACTIONS.NO_TX' | translate }}</p>
+          } @else {
+            @for (tx of notifications(); track tx.id) {
+              <a
+                routerLink="/transactions"
+                (click)="showNotif.set(false)"
+                class="flex items-center gap-3 border-b border-slate-50 px-4 py-3 transition hover:bg-slate-50"
+              >
+                <span
+                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                  [style.background]="tx.color + '1a'"
+                  [style.color]="tx.color"
+                >
+                  {{ tx.amount > 0 ? '↓' : '↑' }}
+                </span>
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-sm font-medium text-slate-700">
+                    {{ tx.categoryKey | translate }} — {{ tx.description || ('TRANSACTIONS.DESC_FALLBACK' | translate) }}
+                  </p>
+                  <p class="text-[11px] text-slate-400">{{ tx.time }}</p>
+                </div>
+                <span class="shrink-0 text-sm font-bold" [style.color]="tx.color">
+                  {{ tx.amount > 0 ? '+' : '' }}{{ tx.amount | number : '1.0-0' }}
+                </span>
+              </a>
+            }
+          }
+        </div>
+      </div>
     }
-  </p-button>
+  </div>
 
   <!-- User profile → mở trang Quản lý tài khoản -->
   <a
     routerLink="/account"
     class="flex items-center gap-2.5 rounded-full bg-white/10 py-1 pl-1 pr-3 transition hover:bg-white/20"
-    aria-label="Quản lý tài khoản cá nhân"
-    title="Quản lý tài khoản cá nhân"
+    aria-label="{{ 'HEADER.PROFILE' | translate }}"
+    title="{{ 'HEADER.PROFILE' | translate }}"
   >
     <span
       class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-ocean-400 to-ocean-600 text-sm font-bold text-white"
     >
       {{ userName().charAt(0) }}
     </span>
-  <!-- User profile -->
-  <div class="flex items-center gap-2.5 rounded-full bg-white/10 py-1 pl-1 pr-3 transition hover:bg-white/15">
-    <p-avatar
-      [label]="userName().charAt(0)"
-      shape="circle"
-      styleClass="bg-gradient-to-br from-ocean-400 to-ocean-600 !text-white !font-bold"
-    />
     <div class="hidden leading-tight md:block">
       <p class="text-sm font-semibold">{{ userName() }}</p>
       <p class="text-[11px] text-ocean-100">{{ userEmail() }}</p>
@@ -83,8 +147,6 @@
       <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
     </svg>
   </a>
-    <i class="pi pi-chevron-down hidden text-ocean-200 md:block"></i>
-  </div>
 
   <!-- Logout -->
   <p-button
@@ -93,8 +155,8 @@
     [rounded]="true"
     styleClass="!text-white hover:!bg-white/15"
     (onClick)="logout()"
-    ariaLabel="Đăng xuất"
-    pTooltip="Đăng xuất"
+    ariaLabel="{{ 'HEADER.LOGOUT' | translate }}"
+    pTooltip="{{ 'HEADER.LOGOUT' | translate }}"
     tooltipPosition="bottom"
   />
 </header>

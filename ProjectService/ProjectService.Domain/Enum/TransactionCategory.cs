@@ -33,5 +33,8 @@ public enum TransactionCategory
     Savings = 8,
 
     /// <summary>Chuyển khoản.</summary>
-    Transfer = 9
+    Transfer = 9,
+
+    /// <summary>Ủng hộ / quyên góp (Mặt trận Tổ quốc, từ thiện...).</summary>
+    Donation = 10
 }

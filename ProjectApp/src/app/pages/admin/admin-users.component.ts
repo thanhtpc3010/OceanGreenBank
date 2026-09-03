@@ -2,6 +2,8 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ConfirmService } from '../../core/services/confirm.service';
+import { LanguageService } from '../../core/i18n/language.service';
+import { TranslatePipe } from '../../core/i18n/translate.pipe';
 import { UserService } from '../../core/services/user.service';
 
 interface AdminUser {
@@ -25,13 +27,14 @@ interface UserPermView {
 
 @Component({
   selector: 'app-admin-users',
-  imports: [FormsModule],
+  imports: [FormsModule, TranslatePipe],
   templateUrl: './admin-users.component.html',
   styleUrl: './admin-users.component.scss',
 })
 export class AdminUsersComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly confirmService = inject(ConfirmService);
+  private readonly language = inject(LanguageService);
 
   protected readonly users = signal<AdminUser[]>([]);
   protected readonly loading = signal(true);
@@ -87,7 +90,7 @@ export class AdminUsersComponent implements OnInit {
     this.error.set('');
     const u = this.newUser;
     if (!u.fullName.trim() || !u.email.trim() || !u.password.trim()) {
-      this.error.set('Vui lòng nhập đầy đủ: họ tên, email, mật khẩu.');
+      this.error.set(this.language.t('ADMIN.USERS_ERR_REQUIRED'));
       return;
     }
     this.adding.set(true);
@@ -113,11 +116,9 @@ export class AdminUsersComponent implements OnInit {
 
   protected async toggleActive(user: AdminUser): Promise<void> {
     const ok = await this.confirmService.confirm({
-      title: user.isActive ? 'Khóa người dùng' : 'Mở khóa người dùng',
-      message: user.isActive
-        ? `Khóa tài khoản của "${user.fullName}"? Người dùng sẽ không đăng nhập được.`
-        : `Mở khóa tài khoản của "${user.fullName}"?`,
-      confirmText: user.isActive ? 'Khóa' : 'Mở khóa',
+      title: this.language.t(user.isActive ? 'ADMIN.USERS_LOCK_TITLE' : 'ADMIN.USERS_UNLOCK_TITLE'),
+      message: this.language.t(user.isActive ? 'ADMIN.USERS_LOCK_MSG' : 'ADMIN.USERS_UNLOCK_MSG', { name: user.fullName }),
+      confirmText: this.language.t(user.isActive ? 'ADMIN.USERS_LOCK' : 'ADMIN.USERS_UNLOCK'),
       danger: user.isActive,
     });
     if (!ok) return;
@@ -131,9 +132,9 @@ export class AdminUsersComponent implements OnInit {
 
   protected async deleteUser(user: AdminUser): Promise<void> {
     const ok = await this.confirmService.confirm({
-      title: 'Xóa người dùng',
-      message: `Xóa "${user.fullName}" (${user.email})? Hành động không thể hoàn tác.`,
-      confirmText: 'Xóa',
+      title: this.language.t('ADMIN.USERS_DELETE_TITLE'),
+      message: this.language.t('ADMIN.USERS_DELETE_MSG', { name: user.fullName, email: user.email }),
+      confirmText: this.language.t('COMMON.DELETE'),
       danger: true,
     });
     if (!ok) return;
@@ -167,6 +168,6 @@ export class AdminUsersComponent implements OnInit {
 
   private extractError(e: unknown): string {
     const body = (e as { error?: { message?: string } })?.error;
-    return body?.message ?? (e instanceof Error ? e.message : 'Có lỗi xảy ra.');
+    return body?.message ?? (e instanceof Error ? e.message : this.language.t('ADMIN.USERS_ERR_DEFAULT'));
   }
 }
