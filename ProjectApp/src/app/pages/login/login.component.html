@@ -92,6 +92,38 @@
                 />
               </div>
 
+              <div>
+                <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'ACCOUNT.ID_CARD' | translate }}</label>
+                <input
+                  pInputText
+                  [(ngModel)]="regIdentityCard"
+                  (keyup.enter)="submit()"
+                  placeholder="001234567890"
+                  class="!w-full"
+                />
+              </div>
+
+              <div>
+                <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'ACCOUNT.DOB' | translate }}</label>
+                <input
+                  pInputText
+                  type="date"
+                  [(ngModel)]="regDateOfBirth"
+                  class="!w-full"
+                />
+              </div>
+
+              <div>
+                <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'ACCOUNT.ADDRESS' | translate }}</label>
+                <input
+                  pInputText
+                  [(ngModel)]="regAddress"
+                  (keyup.enter)="submit()"
+                  placeholder="Hà Nội"
+                  class="!w-full"
+                />
+              </div>
+
               <div class="grid grid-cols-2 gap-3">
                 <div>
                   <label class="mb-1.5 block text-sm font-semibold text-slate-700">{{ 'LOGIN.PASSWORD' | translate }}</label>

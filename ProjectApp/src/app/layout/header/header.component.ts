@@ -1,6 +1,7 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, EventEmitter, inject, OnInit, Output, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { filter } from 'rxjs';
 
 import { AvatarModule } from 'primeng/avatar';
 import { BadgeModule } from 'primeng/badge';
@@ -35,13 +36,19 @@ interface NotifItem {
 export class HeaderComponent implements OnInit {
   @Output() menuToggle = new EventEmitter<void>();
 
-  protected readonly balance = signal(15_000_000);
-
   private readonly language = inject(LanguageService);
   private readonly userService = inject(UserService);
   private readonly txService = inject(TransactionService);
   protected readonly currentLang = this.language.current;
   protected readonly CATEGORY_KEYS = CATEGORY_KEYS;
+
+  /** Số dư khả dụng thực = tổng các tài khoản đang hoạt động (tự cập nhật theo signal accounts). */
+  protected readonly balance = computed(() =>
+    this.userService
+      .accounts()
+      .filter((a) => a.isActive)
+      .reduce((sum, a) => sum + (a.balance ?? 0), 0),
+  );
 
   protected readonly showNotif = signal(false);
   protected readonly notifLoading = signal(false);
@@ -62,6 +69,20 @@ export class HeaderComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     await this.loadNotifications();
+    await this.refreshBalance();
+    // Làm mới số dư mỗi khi đổi trang (cập nhật sau giao dịch / nạp tiền).
+    this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => void this.refreshBalance());
+  }
+
+  /** Nạp danh sách tài khoản (từ đó computed balance tự cập nhật). */
+  private async refreshBalance(): Promise<void> {
+    try {
+      await this.userService.getAccounts();
+    } catch {
+      // Giữ giá trị cũ nếu API lỗi.
+    }
   }
 
   /** Mở/đóng popup thông báo (lịch sử giao dịch gần đây). */

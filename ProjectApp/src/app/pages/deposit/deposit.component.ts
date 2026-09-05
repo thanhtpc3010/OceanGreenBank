@@ -27,6 +27,7 @@ export class DepositComponent implements OnInit {
   protected readonly description = signal('');
   protected readonly submitting = signal(false);
   protected readonly error = signal('');
+  protected readonly success = signal('');
 
   protected readonly accounts = signal<BankAccount[]>([]);
   protected readonly history = signal<PaymentDto[]>([]);
@@ -38,12 +39,21 @@ export class DepositComponent implements OnInit {
       label: 'MoMo',
       sub: this.language.t('DEPOSIT.EWALLET_MOMO'),
       brand: '#d82d8b',
+      short: 'M',
     },
     {
       value: PaymentProvider.ZaloPay,
       label: 'ZaloPay',
       sub: this.language.t('DEPOSIT.EWALLET_ZALOPAY'),
       brand: '#0068ff',
+      short: 'Z',
+    },
+    {
+      value: PaymentProvider.Cash,
+      label: this.language.t('DEPOSIT.CASH'),
+      sub: this.language.t('DEPOSIT.CASH_SUB'),
+      brand: '#16a34a',
+      short: '₫',
     },
   ];
 
@@ -52,12 +62,18 @@ export class DepositComponent implements OnInit {
   );
 
   async ngOnInit(): Promise<void> {
+    await this.refreshAccounts();
+    await this.loadHistory();
+  }
+
+  /** Nạp danh sách tài khoản CASA đang hoạt động (giữ lựa chọn hiện tại nếu còn). */
+  private async refreshAccounts(): Promise<void> {
     const accounts = await this.userService.getAccounts();
-    // Chỉ nạp vào tài khoản thường (CASA) đang hoạt động.
     const casas = accounts.filter((a) => a.type === 0 && a.isActive);
     this.accounts.set(casas);
-    if (casas.length) this.accountId.set(casas[0].id);
-    await this.loadHistory();
+    if (casas.length && !casas.some((a) => a.id === this.accountId())) {
+      this.accountId.set(casas[0].id);
+    }
   }
 
   protected async loadHistory(): Promise<void> {
@@ -72,9 +88,10 @@ export class DepositComponent implements OnInit {
     }
   }
 
-  /** Tạo đơn nạp tiền → redirect sang trang ví mô phỏng. */
+  /** Tạo đơn nạp tiền. Ví → redirect trang mô phỏng; tiền mặt → vào ngay. */
   protected async createPayment(): Promise<void> {
     this.error.set('');
+    this.success.set('');
     const amt = this.amount();
     if (!amt || amt <= 0) {
       this.error.set(this.language.t('DEPOSIT.ERR_AMOUNT'));
@@ -92,6 +109,16 @@ export class DepositComponent implements OnInit {
         amount: amt,
         description: this.description().trim() || undefined,
       });
+
+      // Nạp tiền mặt: backend đã credit ngay → hiện thông báo thành công, không sang trang ví.
+      if (this.provider() === PaymentProvider.Cash) {
+        const amountStr = new Intl.NumberFormat('vi-VN').format(amt!);
+        this.success.set(this.language.t('DEPOSIT.CASH_SUCCESS', { amount: amountStr }));
+        await this.refreshAccounts();
+        await this.loadHistory();
+        return;
+      }
+
       // Giống redirect sang app MoMo/ZaloPay.
       await this.router.navigate([payment.mockPaymentUrl]);
     } catch (e) {
@@ -110,7 +137,21 @@ export class DepositComponent implements OnInit {
   }
 
   protected providerLabel(v: number): string {
-    return v === PaymentProvider.Momo ? 'MoMo' : 'ZaloPay';
+    if (v === PaymentProvider.Momo) return 'MoMo';
+    if (v === PaymentProvider.ZaloPay) return 'ZaloPay';
+    return this.language.t('DEPOSIT.CASH');
+  }
+
+  protected providerShort(v: number): string {
+    if (v === PaymentProvider.Momo) return 'M';
+    if (v === PaymentProvider.ZaloPay) return 'Z';
+    return '₫';
+  }
+
+  protected providerColor(v: number): string {
+    if (v === PaymentProvider.Momo) return '#d82d8b';
+    if (v === PaymentProvider.ZaloPay) return '#0068ff';
+    return '#16a34a';
   }
 
   private extractError(e: unknown): string {

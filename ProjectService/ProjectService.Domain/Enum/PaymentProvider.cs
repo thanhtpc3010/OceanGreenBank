@@ -9,5 +9,8 @@ public enum PaymentProvider
     Momo = 1,
 
     /// <summary>Ví ZaloPay.</summary>
-    ZaloPay = 2
+    ZaloPay = 2,
+
+    /// <summary>Tiền mặt — nạp tại quầy/ATM, tiền vào ngay (không qua ví).</summary>
+    Cash = 3
 }

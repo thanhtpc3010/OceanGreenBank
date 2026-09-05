@@ -47,6 +47,9 @@ export class LoginComponent {
   protected readonly regFullName = signal('');
   protected readonly regEmail = signal('');
   protected readonly regPhone = signal('');
+  protected readonly regIdentityCard = signal('');
+  protected readonly regDateOfBirth = signal('');
+  protected readonly regAddress = signal('');
   protected readonly regPassword = signal('');
   protected readonly regConfirmPassword = signal('');
   protected readonly recaptcha = signal(false);
@@ -95,7 +98,10 @@ export class LoginComponent {
   private async doRegister(): Promise<void> {
     const fullName = this.regFullName().trim();
     const email = this.regEmail().trim();
-    if (!fullName || !email || !this.regPassword().trim()) {
+    const identityCard = this.regIdentityCard().trim();
+    const dateOfBirth = this.regDateOfBirth().trim();
+    const address = this.regAddress().trim();
+    if (!fullName || !email || !identityCard || !dateOfBirth || !this.regPassword().trim()) {
       this.error.set(this.language.t('LOGIN.ERR_EMPTY'));
       return;
     }
@@ -115,9 +121,10 @@ export class LoginComponent {
         fullName,
         email,
         phone: this.regPhone().trim() || '0900000000',
-        identityCard: '',
-        dateOfBirth: '2000-01-01',
+        identityCard,
+        dateOfBirth,
         password: this.regPassword(),
+        address: address || undefined,
       });
       this.router.navigate(['/dashboard']);
     } catch (e) {

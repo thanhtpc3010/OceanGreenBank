@@ -101,6 +101,12 @@ public class PaymentCommand :
         await _paymentRepository.AddAsync(payment, ct);
         await _unitOfWork.SaveChangesAsync(ct);
 
+        // Nạp tiền mặt: tiền vào ngay tại quầy/ATM → credit + hoàn tất (không qua ví).
+        if (request.Provider == PaymentProvider.Cash)
+        {
+            await CreditAndCompleteAsync(payment, ct);
+        }
+
         return ToDto(payment);
     }
 
@@ -112,7 +118,17 @@ public class PaymentCommand :
         if (payment.Status != PaymentStatus.Pending)
             throw new DomainException("Đơn thanh toán không còn ở trạng thái chờ xác nhận.");
 
-        // Credit tiền vào tài khoản đích (giống AutoEarn: cập nhật trực tiếp số dư).
+        await CreditAndCompleteAsync(payment, ct);
+
+        return ToDto(payment);
+    }
+
+    /// <summary>
+    /// Credit tiền vào tài khoản đích và đánh dấu đơn thành công
+    /// (giống AutoEarn: cập nhật trực tiếp số dư, không tạo Transaction row).
+    /// </summary>
+    private async Task CreditAndCompleteAsync(Payment payment, CancellationToken ct)
+    {
         var account = await _accountRepository.GetByIdAsync(payment.AccountId, ct);
         if (account is not null && account.IsActive)
         {
@@ -127,8 +143,6 @@ public class PaymentCommand :
 
         _paymentRepository.Update(payment);
         await _unitOfWork.SaveChangesAsync(ct);
-
-        return ToDto(payment);
     }
 
     public async Task<PaymentDto> CancelAsync(CancelPaymentCommand request, CancellationToken ct)
@@ -153,7 +167,13 @@ public class PaymentCommand :
     // --- Helpers ---
     private static string GenerateOrderCode(PaymentProvider provider)
     {
-        var prefix = provider == PaymentProvider.Momo ? "MOMO" : "ZLP";
+        var prefix = provider switch
+        {
+            PaymentProvider.Momo => "MOMO",
+            PaymentProvider.ZaloPay => "ZLP",
+            PaymentProvider.Cash => "CSH",
+            _ => "PAY"
+        };
         var stamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
         var rand = Random.Shared.Next(10000, 99999).ToString();
         return $"{prefix}{stamp}{rand}";
@@ -173,10 +193,17 @@ public class PaymentCommand :
         p.Description,
         p.CompletedDate,
         p.CreatedDate,
-        $"/wallet-pay/{p.Id}");
+        // Tiền mặt không đi qua trang ví mô phỏng.
+        p.Provider == PaymentProvider.Cash ? null : $"/wallet-pay/{p.Id}");
 
     private static string ProviderName(PaymentProvider provider)
-        => provider == PaymentProvider.Momo ? "MoMo" : "ZaloPay";
+        => provider switch
+        {
+            PaymentProvider.Momo => "MoMo",
+            PaymentProvider.ZaloPay => "ZaloPay",
+            PaymentProvider.Cash => "Tiền mặt",
+            _ => "Khác"
+        };
 
     private static string StatusName(PaymentStatus status)
         => status switch
