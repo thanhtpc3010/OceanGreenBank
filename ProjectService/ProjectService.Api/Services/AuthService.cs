@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ProjectService.Api.Models;
 using ProjectService.Application.Common.Interfaces;
+using ProjectService.Application.Services.Commands;
 using ProjectService.Application.Services.DTOs;
 using ProjectService.Application.Services.Queries;
 using ProjectService.Domain.Entity;
@@ -79,6 +80,15 @@ public class AuthService
     /// <summary>Đăng ký — tạo user mới (mật khẩu hash) rồi trả JWT.</summary>
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request, CancellationToken ct)
     {
+        if (string.IsNullOrWhiteSpace(request.FullName))
+            throw new DomainException("Họ và tên không được để trống.");
+        if (string.IsNullOrWhiteSpace(request.Phone))
+            throw new DomainException("Số điện thoại không được để trống.");
+        if (string.IsNullOrWhiteSpace(request.IdentityCard))
+            throw new DomainException("Số CCCD/CMND không được để trống.");
+        if (request.DateOfBirth == default || request.DateOfBirth > DateTime.UtcNow)
+            throw new DomainException("Ngày sinh không hợp lệ.");
+
         var existing = await _userRepository.FindAsync(
             u => u.Email.ToLower() == request.Email.Trim().ToLower(), ct);
         if (existing.Any())
@@ -100,6 +110,9 @@ public class AuthService
 
         await _userWriter.AddAsync(user, ct);
         await _unitOfWork.SaveChangesAsync(ct);
+
+        // Tự tạo tài khoản thanh toán (CASA) mặc định cho user mới đăng ký.
+        await _mediator.Send(new CreateAccountCommand(user.Id, "VND"), ct);
 
         return await BuildResponseAsync(user, ct);
     }

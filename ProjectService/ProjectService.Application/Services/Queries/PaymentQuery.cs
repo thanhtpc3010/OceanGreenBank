@@ -69,10 +69,16 @@ public class PaymentQuery : IPaymentQueryService,
         p.Description,
         p.CompletedDate,
         p.CreatedDate,
-        $"/wallet-pay/{p.Id}");
+        p.Provider == PaymentProvider.Cash ? null : $"/wallet-pay/{p.Id}");
 
     private static string ProviderName(PaymentProvider provider)
-        => provider == PaymentProvider.Momo ? "MoMo" : "ZaloPay";
+        => provider switch
+        {
+            PaymentProvider.Momo => "MoMo",
+            PaymentProvider.ZaloPay => "ZaloPay",
+            PaymentProvider.Cash => "Tiền mặt",
+            _ => "Khác"
+        };
 
     private static string StatusName(PaymentStatus status)
         => status switch

@@ -6,6 +6,7 @@ import { firstValueFrom } from 'rxjs';
 export enum PaymentProvider {
   Momo = 1,
   ZaloPay = 2,
+  Cash = 3,
 }
 
 /** Trạng thái đơn nạp tiền (khớp backend PaymentStatus). */

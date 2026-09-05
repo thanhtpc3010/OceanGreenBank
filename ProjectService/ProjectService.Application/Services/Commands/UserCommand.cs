@@ -50,11 +50,13 @@ public class UserCommand :
 {
     private readonly IWriteRepository<User> _userRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMediator _mediator;
 
-    public UserCommand(IWriteRepository<User> userRepository, IUnitOfWork unitOfWork)
+    public UserCommand(IWriteRepository<User> userRepository, IUnitOfWork unitOfWork, IMediator mediator)
     {
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
+        _mediator = mediator;
     }
 
     // --- MediatR dispatch ---
@@ -94,6 +96,9 @@ public class UserCommand :
 
         await _userRepository.AddAsync(user, ct);
         await _unitOfWork.SaveChangesAsync(ct);
+
+        // Tự tạo tài khoản thanh toán (CASA) mặc định cho user mới.
+        await _mediator.Send(new CreateAccountCommand(user.Id, "VND"), ct);
 
         return ToDto(user);
     }

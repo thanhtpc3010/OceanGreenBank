@@ -25,7 +25,7 @@ Hệ thống ngân hàng số mô phỏng đầy đủ nghiệp vụ: đăng nh�
 | **Frontend** | Angular 21, PrimeNG (UI Component Library), Tailwind CSS v4, RxJS |
 | **Backend** | .NET 10 (ASP.NET Core Web API), Clean Architecture, CQRS (MediatR) |
 | **Database** | PostgreSQL (Entity Framework Core — Npgsql) |
-| **Job định kỳ** | Quartz.NET (sinh lời tự động AutoEarn) |
+| **Job định kỳ** | ASP.NET Core BackgroundService (sinh lời tự động AutoEarn) |
 | **AI** | Google Gemini (trợ lý chat, kết hợp Knowledge Base RAG) |
 | **Bảo mật** | JWT Bearer, BCrypt hash mật khẩu, phân quyền RBAC |
 
@@ -67,6 +67,9 @@ OceanGreenBank/
 # Cài dependencies & build
 dotnet build ProjectService/OceanGreenBank.slnx
 
+# Cập nhật database (chạy EF migrations)
+dotnet ef database update -c ApplicationWriteDbContext --project ProjectService/ProjectService.Infrastructure/ProjectService.Infrastructure.csproj --startup-project ProjectService/ProjectService.Api/ProjectService.Api.csproj
+
 # Chạy API tại http://localhost:5081
 dotnet run --project ProjectService/ProjectService.Api --launch-profile http
 ```
@@ -74,6 +77,8 @@ dotnet run --project ProjectService/ProjectService.Api --launch-profile http
 API sẽ lắng nghe tại: **http://localhost:5081**
 
 > Cấu hình kết nối database nằm ở `ProjectService/ProjectService.Api/appsettings.json` (mục `ConnectionStrings`). Mặc định kết nối PostgreSQL (Supabase).
+>
+> **Trợ lý AI (Gemini):** điền API key vào `ProjectService/ProjectService.Api/appsettings.json` (mục `Gemini.ApiKey`) nếu muốn bật chatbot. Để trống thì bot AI sẽ hiển thị trạng thái "chưa cấu hình".
 
 ### 4.2. Frontend (Angular)
 
@@ -96,6 +101,7 @@ Mở trình duyệt truy cập: **http://localhost:4200**
 | Vai trò | Email | Mật khẩu | Ghi chú |
 |---------|-------|----------|---------|
 | **Người dùng** | `nguyenvana@gmail.com` | `password123` | Nguyễn Văn A — có tài khoản & giao dịch mẫu |
+| **Người dùng** | `test@oceangreenbank.vn` | `Test@123456` | Tài khoản test |
 | **Quản trị viên** | `admin@smartbank.vn` | `password123` | Có toàn quyền quản trị (RBAC) |
 
 Hoặc bạn có thể **tự đăng ký** tài khoản mới ngay trên màn hình Đăng nhập.
@@ -224,6 +230,22 @@ Gồm các khối:
 - Thêm / sửa / xóa / bật-tắt các mục kiến thức (từ khóa, tiêu đề, nội dung).
 - Bot AI sẽ tự động đối chiếu câu hỏi với kho kiến thức và trả lời theo đúng tài liệu.
 
+### 6.11. Ủng hộ Mặt trận Tổ quốc — Donate (`/donate`)
+
+**Mục đích:** Ủng hộ tiền vào các quỹ chính thức của Việt Nam (Ban Vận động Cứu trợ Trung ương, Quỹ Vì người nghèo, Quỹ phòng chống thiên tai, Hội Chữ thập đỏ...).
+
+- Chọn quỹ tiếp nhận và ngân hàng thụ hưởng (danh sách tài khoản có sẵn của từng quỹ).
+- Nhập số tiền và nội dung ủng hộ → xác nhận bằng mã PIN giao dịch.
+- Giao dịch ủng hộ **miễn phí** (không mất phí chuyển khoản) và được lưu đầy đủ trong lịch sử giao dịch.
+
+### 6.12. Bản dịch / Đa ngôn ngữ (`/admin/translations`)
+
+**Mục đích:** Quản lý nội dung ngôn ngữ (Tiếng Việt / English) của toàn ứng dụng — dữ liệu dịch lưu trong database.
+
+- Xem, tìm kiếm, lọc theo ngôn ngữ toàn bộ các key dịch.
+- Thêm / sửa / xóa bản dịch (có hiệu lực ngay, không cần build lại).
+- Người dùng chuyển đổi ngôn ngữ bằng nút cờ 🇻🇳/🇬🇧 ở header.
+
 ---
 
 ## 7. Kiến trúc hệ thống
@@ -235,7 +257,7 @@ Hệ thống thiết kế theo **Clean Architecture + CQRS**, phân tách rõ r�
 | **Api** | Xử lý HTTP, xác thực JWT, middleware, CORS |
 | **Application** | Nghiệp vụ CQRS: Commands (ghi) / Queries (đọc), DTOs |
 | **Domain** | Entity, Enum, Value Object, Domain Events, Exception |
-| **Infrastructure** | EF Core (Read/Write DbContext), Repository, Quartz.NET, Services |
+| **Infrastructure** | EF Core (Read/Write DbContext), Repository, BackgroundService, Services |
 
 **Quy tắc phụ thuộc:** `Api → Application + Infrastructure`; `Infrastructure → Application → Domain` (không phụ thuộc ngược).
 
