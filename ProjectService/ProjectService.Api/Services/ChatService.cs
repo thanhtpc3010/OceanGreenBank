@@ -167,6 +167,10 @@ public class ChatService
         sb.AppendLine("- Tiết kiệm định kỳ: kế hoạch gửi tự động hằng ngày/tuần/tháng từ tài khoản nguồn sang tài khoản đích; có thể gửi ngay hoặc hủy kế hoạch.");
         sb.AppendLine("- AutoEarn (sinh lời tự động): tài khoản tham gia được cộng lãi mỗi ngày theo tiền gốc (lãi suất %/năm / 365). Admin cấu hình bật/tắt, lãi suất, giờ chạy tự động.");
         sb.AppendLine("- PFM: thống kê thu/chi theo danh mục (ăn uống, mua sắm, hóa đơn...), biểu đồ chi tiêu trên Dashboard.");
+        sb.AppendLine("- Nạp tiền: nạp vào tài khoản CASA qua ví MoMo / ZaloPay (chuyển sang trang ví mô phỏng để xác nhận, mã đơn MOMO/ZLP) hoặc nạp TIỀN MẶT (được ghi có NGAY vào tài khoản, không qua ví, mã đơn CSH).");
+        sb.AppendLine("- Ủng hộ MTTQ (từ thiện): chọn 1 trong các quỹ chính thức (Ban vận động cứu trợ, Quỹ vì người nghèo...) để ủng hộ, phí giao dịch 0đ.");
+        sb.AppendLine("- Giao dịch & sao kê: xem toàn bộ lịch sử giao dịch của tài khoản (chuyển tiền, nạp, rút, ủng hộ...).");
+        sb.AppendLine("- Đăng ký tài khoản: người dùng đăng ký phải nhập ĐẦY ĐỦ thông tin (họ tên, email, SĐT, CCCD/CMND, ngày sinh, địa chỉ, mật khẩu); hệ thống TỰ ĐỘNG tạo 1 tài khoản thanh toán CASA (VND, số dư 0, mã tự sinh) ngay sau khi đăng ký thành công.");
         sb.AppendLine("- Quản lý User (admin): xem/tìm/khóa/mở khóa/xóa user, xem vai trò & quyền (RBAC).");
 
         if (knowledge.Count > 0)
