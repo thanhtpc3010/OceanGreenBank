@@ -42,3 +42,8 @@ appsettings.Development.json
 
 # ---- Helper scripts (tạm, không đưa lên repo) ----
 read-gh-cred.ps1
+
+# Build / packaging artifacts (not source)
+Publish/
+OceanGreenBank_Submission/
+*.zip
